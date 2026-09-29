@@ -4,9 +4,9 @@ Login con email+password (api-token-auth) oppure token JWT manuale.
 """
 import os
 
-import requests
+from . import network as requests
 
-from .common import LoginError, sanitize, UA_SIMPLE
+from .common import response_json, save_pdf, checked_zip, svg_pdf, LoginError, sanitize, UA_SIMPLE
 
 LABEL = "MyLim (Loescher)"
 AUTH_FIELDS = [
@@ -75,8 +75,8 @@ def download(state, book_id, out_dir, options, progress):
     token = state["token"]
     isbn = book_id.strip()
     progress(0, 1, "Richiedo il PDF…")
-    info = requests.get(f"{API}/book/pdf/{isbn}/",
-                        headers={**UA_SIMPLE, "Authorization": "JWT " + token}, timeout=20).json()
+    info = response_json(requests.get(f"{API}/book/pdf/{isbn}/",
+                        headers={**UA_SIMPLE, "Authorization": "JWT " + token}, timeout=20))
     url = info.get("url")
     if not url:
         raise RuntimeError("Il server non ha fornito il link al PDF.")
@@ -89,7 +89,6 @@ def download(state, book_id, out_dir, options, progress):
             title = b["opera"].get("nome", isbn)
             break
     out = os.path.join(out_dir, sanitize(f"{isbn} - {title}") + ".pdf")
-    with open(out, "wb") as fh:
-        fh.write(r.content)
+    out = save_pdf(r.content, out_dir, f"{isbn} - {title}")
     progress(1, 1, "PDF salvato!")
     return out

@@ -9,13 +9,13 @@ import tempfile
 import zipfile
 from unittest.mock import patch
 
-import fitz
+import pymupdf as fitz
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from platforms import PLATFORMS
 import xml.etree.ElementTree as ET
-from platforms import bsmart, mylim, hub, hoepli, sanoma, zanichelli
+from platforms import bsmart, mylim, hub, sanoma, zanichelli
 from platforms.common import LoginError
 
 fails = []
@@ -23,7 +23,8 @@ fails = []
 
 def check(name, fn):
     try:
-        fn()
+        with tempfile.TemporaryDirectory() as library_dir, patch("library.index_path", return_value=os.path.join(library_dir, "library.json")):
+            fn()
         print("OK  ", name)
     except Exception as e:
         fails.append(name)
@@ -32,14 +33,14 @@ def check(name, fn):
 
 # 1. registro interfacce
 def t_registry():
-    assert len(PLATFORMS) == 7, len(PLATFORMS)
+    assert len(PLATFORMS) == 6, len(PLATFORMS)
     for p in PLATFORMS:
         m = p["mod"]
         for attr in ("LABEL", "AUTH_FIELDS", "ID_LABEL", "OPTIONS", "NEEDS_LOGIN",
                      "NEEDS_LIST", "login", "list_books", "download"):
             assert hasattr(m, attr), f"{p['key']} manca {attr}"
 
-check("registry 7 piattaforme", t_registry)
+check("registry 6 piattaforme", t_registry)
 
 
 # 2. bsmart decrypt roundtrip (formato reale)
@@ -61,11 +62,12 @@ check("bsmart decrypt", t_bsmart_decrypt)
 
 
 def t_bsmart_bad_login():
-    try:
-        bsmart.login_with_credentials("test@test.it", "wrongpass123")
-        raise AssertionError("atteso LoginError")
-    except LoginError as e:
-        assert "non validi" in str(e).lower()
+    with patch.object(bsmart.requests, "get", side_effect=LoginError("Accesso negato")), patch.object(bsmart.requests, "post", side_effect=LoginError("Accesso negato")):
+        try:
+            bsmart.login({"_site": "bsmart", "email": "test@example.test", "password": "wrong"})
+        except LoginError:
+            return
+        raise AssertionError("Login errato accettato")
 
 check("bsmart login errato", t_bsmart_bad_login)
 
@@ -284,47 +286,15 @@ def t_hub():
 check("hub mock", t_hub)
 
 
-# 7. hoepli con rete mockata
-def t_hoepli():
-    dd = fitz.open()
-    dd.new_page(width=60, height=80)
-    png_buf = io.BytesIO()
-    pix = fitz.Pixmap(fitz.csRGB, fitz.IRect(0, 0, 60, 80), False)
-    pix.set_rect(pix.irect, (0, 120, 200))
-    png_buf.write(pix.tobytes("png"))
-    svg = b'<svg xmlns="http://www.w3.org/2000/svg" width="60" height="80"></svg>'
-    pager = {"pages": {"structure": ["1", "2"],
-                       "defaults": {"width": 60, "height": 80, "substrateSizesReady": "s",
-                                    "substrateFormat": "png", "textLayer": True},
-                       "1": {}, "2": {}}}
-    html = "<html><head><title>Demo Test</title></head></html>"
-
-    def fake_get(url, **kw):
-        if url.endswith("pager.js"):
-            return FakeResp(payload=pager)
-        if "page-vectorlayers" in url:
-            return FakeResp(content=svg)
-        if "substrates" in url:
-            return FakeResp(content=png_buf.getvalue())
-        return FakeResp(content=html.encode())
-
-    with patch("platforms.hoepli.requests.get", side_effect=fake_get):
-        outdir = tempfile.mkdtemp()
-        out = hoepli.download({}, "http://demo/test/index.html", outdir, {}, lambda *a: None)
-        d = fitz.open(out)
-        assert d.page_count == 2, d.page_count
-
-check("hoepli mock", t_hoepli)
-
-
 # 8. GUI si costruisce
 def t_gui():
     import app_gui
-    assert len(PLATFORMS) == 7
+    assert len(PLATFORMS) == 6
     app = app_gui.App()
-    assert len(app.plat_buttons) == 7
+    assert len(app.plat_buttons) == 6
     assert "email" in app.auth_vars  # bsmart di default
-    app._select_platform("hoepli")  # senza login
+    app._select_platform("bsmart")
+    app.session_state = {"test": True}
     app.books = [{"id": "http://demo/x", "title": "Demo"}]
     app._filter_books()
     assert len(app.book_rows) == 1
@@ -340,13 +310,20 @@ check("gui build", t_gui)
 
 def t_vault():
     import vault
+    if sys.platform != "win32":
+        data = {}
+        with patch.object(vault, "_load_blob", side_effect=lambda: json.dumps(data).encode()), patch.object(vault, "_store_blob", side_effect=lambda raw: data.update(json.loads(raw))):
+            vault.set_creds("__test__", "a@b.it", "segreto123")
+            assert vault.get_creds("__test__")["password"] == "segreto123"
+        return
     vault.set_creds("__test__", "a@b.it", "segreto123")
     got = vault.get_creds("__test__")
     assert got == {"email": "a@b.it", "password": "segreto123"}, got
     vault.del_creds("__test__")
     assert vault.get_creds("__test__") == {}
 
-check("vault roundtrip", t_vault)
+with tempfile.TemporaryDirectory() as vault_dir, patch("vault._vault_path", return_value=os.path.join(vault_dir, "vault.dat")):
+    check("vault roundtrip", t_vault)
 
 
 def t_context_menu():
@@ -354,7 +331,7 @@ def t_context_menu():
     app = app_gui.App()
     # binding presenti (il recapito tasti e meccanismo Tk standard)
     assert app.bind_all("<Button-3>"), "binding tasto destro mancante"
-    assert app.bind_all("<Control-v>"), "binding incolla mancante"
+    assert app.bind_class(app._edit_tag, "<Control-v>"), "binding incolla mancante"
     entry = app.auth_widgets["email"]
     app.clipboard_clear()
     app.clipboard_append("test@incolla.it")
@@ -372,8 +349,233 @@ def t_context_menu():
     assert entry.get() == "test@incolla.it", repr(entry.get())
     app.destroy()
 
-check("copia/incolla nei campi", t_context_menu)
+with patch("vault.get_creds", return_value={}):
+    check("copia/incolla nei campi", t_context_menu)
 
+
+def t_account_operations():
+    import app_gui
+    import vault
+    import threading
+    import time
+    saved = {}
+    gate = threading.Event()
+    started = threading.Event()
+    def login(creds):
+        started.set()
+        gate.wait(5)
+        assert creds["password"] == " password "
+        return {"account": creds["email"]}
+    with patch.object(vault, "get_creds", return_value={}), \
+         patch.object(vault, "set_account", side_effect=lambda k, v: saved.update({k: v})), \
+         patch.object(vault, "del_creds", side_effect=lambda k: saved.pop(k, None)), \
+         patch.object(app_gui.messagebox, "showinfo"), \
+         patch.object(bsmart, "login", side_effect=login), \
+         patch.object(bsmart, "list_books", return_value=[{"id": "book", "title": "Libro"}]):
+        app = app_gui.App()
+        try:
+            assert not app.remember_var.get()
+            app.auth_vars["email"].set("account@example.test")
+            app.auth_vars["password"].set(" password ")
+            app._save_account()
+            assert not saved
+            app.remember_var.set(True)
+            app._save_account()
+            assert saved["bsmart"]["password"] == " password "
+            app._load_books_thread()
+            assert started.wait(2)
+            app._select_platform("sanoma")
+            assert app.platform_key == "bsmart"
+            app._load_books_thread()
+            assert bsmart.login.call_count == 1
+            app.auth_vars["email"].set("changed@example.test")
+            gate.set()
+            deadline = time.monotonic() + 5
+            while app.busy and time.monotonic() < deadline:
+                app.update()
+                time.sleep(0.01)
+            assert not app.busy
+            assert app.session_state["account"] == "account@example.test"
+            app._pick("book")
+            app.out_var.set(str(app.local_library.path.parent))
+            gate.clear()
+            started.clear()
+            def download(state, book_id, out_dir, opts, progress):
+                started.set()
+                gate.wait(5)
+                assert book_id == "book" and state["account"] == "account@example.test"
+                progress(1, 1, "Finito")
+                from pathlib import Path
+                file = Path(out_dir) / "test.pdf"
+                with fitz.open() as document:
+                    document.new_page()
+                    document.save(file)
+                return str(file)
+            with patch.object(bsmart, "download", side_effect=download):
+                app._download_thread()
+                assert started.wait(2)
+                app._select_platform("sanoma")
+                app._download_thread()
+                assert app.platform_key == "bsmart" and bsmart.download.call_count == 1
+                gate.set()
+                deadline = time.monotonic() + 5
+                while app.busy and time.monotonic() < deadline:
+                    app.update()
+                    time.sleep(0.01)
+                assert not app.busy
+                assert app.local_library.available()[0]["title"] == "Libro"
+            app._delete_account()
+            assert not saved and app.session_state is None
+            assert not app.auth_vars["password"].get()
+        finally:
+            gate.set()
+            app.update()
+            app.destroy()
+    with patch.object(vault.sys, "platform", "linux"), \
+         patch.object(vault.shutil, "which", return_value=None), \
+         patch("builtins.open") as opened:
+        try:
+            vault._store_blob(b"secret")
+            raise AssertionError("salvataggio senza portachiavi accettato")
+        except OSError:
+            pass
+        opened.assert_not_called()
+
+check("consenso credenziali e isolamento accessi", t_account_operations)
+
+def t_folio_navigation():
+    import app_gui
+    import vault
+    with patch.object(vault, "get_creds", return_value={}), patch.object(app_gui.messagebox, "showinfo"):
+        app = app_gui.App()
+        try:
+            app.session_state = {"account": "bsmart"}
+            app.books = [{"id": "one", "title": "Libro disponibile"},
+                         {"id": "two", "title": "Libro bloccato", "ok": False}]
+            app._filter_books()
+            app._pick("one")
+            app._pick("two")
+            assert app.selected_id == "one"
+            assert str(app.book_rows[1][1].cget("state")) == "disabled"
+            app.search_var.set("nessun risultato")
+            assert not app.book_rows and "0 risultati" in app.book_count.cget("text")
+            app._select_platform("sanoma")
+            assert app.session_state is None
+            app._select_platform("bsmart")
+            assert app.session_state["account"] == "bsmart" and app.selected_id == "one"
+            app.pages.set("Account e credenziali")
+            assert app.page_title.cget("text") == "Account"
+            app._select_platform("bsmart")
+            app.auth_vars["email"].set("")
+            app.auth_vars["password"].set("")
+            app.auth_vars["cookie"].set("session-cookie")
+            assert app.auth_widgets["cookie"].cget("show") == "•"
+            with patch.object(bsmart, "login", return_value={}), patch.object(bsmart, "list_books", return_value=[]):
+                app._load_books_thread()
+                import time
+                deadline = time.monotonic() + 5
+                while app.busy and time.monotonic() < deadline:
+                    app.update()
+                    time.sleep(.01)
+                assert not app.busy and bsmart.login.call_count == 1
+        finally:
+            app.destroy()
+
+check("Folio: navigazione, sessioni e cookie", t_folio_navigation)
+
+def t_real_paste():
+    import app_gui
+    with patch("vault.get_creds", return_value={}):
+        app = app_gui.App()
+        try:
+            app.pages.set("Account e credenziali")
+            app.update()
+            entry = app.auth_widgets["email"]._entry
+            entry.focus_force()
+            app.update()
+            app.clipboard_clear()
+            app.clipboard_append("una-volta")
+            entry.event_generate("<Control-v>")
+            app.update()
+            assert entry.get() == "una-volta", repr(entry.get())
+            entry.selection_range(0, "end")
+            entry.event_generate("<Control-v>")
+            app.update()
+            assert entry.get() == "una-volta", repr(entry.get())
+            app.pages.set("Scaricati")
+            app.local_search.set("")
+            field = next(w for w in app.page_frames["Scaricati"].winfo_children() if isinstance(w, app_gui.ctk.CTkEntry))._entry
+            field.focus_force()
+            app.update()
+            field.event_generate("<Control-v>")
+            app.update()
+            assert app.local_search.get() == "una-volta"
+            app._toggle_log()
+            text = app.log._textbox
+            text.focus_force()
+            text.delete("1.0", "end")
+            app.update()
+            text.event_generate("<Control-v>")
+            app.update()
+            assert text.get("1.0", "end-1c") == "una-volta"
+        finally:
+            app.destroy()
+
+
+def wait_library(app):
+    import time
+    deadline = time.monotonic() + 5
+    app.update()
+    while (getattr(app, "_library_pending", False) or getattr(app, "_library_scanning", False)) and time.monotonic() < deadline:
+        app.update()
+        time.sleep(.01)
+    assert not getattr(app, "_library_pending", False) and not getattr(app, "_library_scanning", False)
+
+def t_local_library():
+    from library import Library
+    from pathlib import Path
+    import app_gui
+    with tempfile.TemporaryDirectory() as folder, patch("vault.get_creds", return_value={}):
+        root = Path(folder)
+        pdf = root / "libro.pdf"
+        import pymupdf as fitz
+        with fitz.open() as document:
+            document.new_page()
+            document.save(pdf)
+        store = Library(root / "index.json")
+        assert store.add(pdf, "Titolo originale", "bsmart", "1")
+        assert store.add(pdf, "Titolo originale", "bsmart", "1")
+        assert len(store.available()) == 1
+        restarted = Library(root / "index.json")
+        assert restarted.available()[0]["title"] == "Titolo originale"
+        app = app_gui.App()
+        try:
+            app.local_library = restarted
+            app.out_var.set(str(root))
+            app.pages.set("Scaricati")
+            wait_library(app)
+            assert "1 PDF" in app.local_count.cget("text")
+            app._select_platform("sanoma")
+            app.pages.set("Scaricati")
+            wait_library(app)
+            assert "1 PDF" in app.local_count.cget("text")
+            pdf.unlink()
+            app._refresh_downloaded()
+            wait_library(app)
+            assert "0 PDF" in app.local_count.cget("text")
+            assert not Library(root / "index.json").available()
+            moved = root / "nuovo.pdf"
+            with fitz.open() as document:
+                document.new_page()
+                document.save(moved)
+            app._refresh_downloaded()
+            wait_library(app)
+            assert "1 PDF" in app.local_count.cget("text")
+        finally:
+            app.destroy()
+
+check("Ctrl+V reale: una sola incolla e sostituzione selezione", t_real_paste)
+check("Biblioteca persistente: file presenti, eliminati e scoperti", t_local_library)
 
 print()
 if fails:

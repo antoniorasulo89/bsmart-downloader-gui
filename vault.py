@@ -2,13 +2,18 @@
 
 Windows: DPAPI (solo lo stesso utente può decifrare).
 macOS: Keychain tramite comando `security`.
-Linux: Secret Service tramite `secret-tool`, oppure file con permessi 0600.
+Linux: Secret Service tramite `secret-tool`. Nessun salvataggio in chiaro.
 """
 import json
 import os
 import shutil
 import subprocess
 import sys
+import threading
+from storage import atomic_write
+from filelock import FileLock
+
+_LOCK = threading.RLock()
 
 SERVICE = "ScaricaLibri"
 
@@ -71,24 +76,19 @@ def _win_unprotect(data: bytes) -> bytes:
 
 def _store_blob(raw: bytes):
     if sys.platform == "win32":
-        with open(_vault_path(), "wb") as fh:
-            fh.write(_win_protect(raw))
+        atomic_write(_vault_path(), _win_protect(raw))
     elif sys.platform == "darwin" and shutil.which("security"):
-        subprocess.run(["security", "delete-generic-password", "-s", SERVICE],
-                       capture_output=True)
-        subprocess.run(["security", "add-generic-password", "-s", SERVICE,
+        subprocess.run(["security", "add-generic-password", "-U", "-s", SERVICE,
                         "-a", "vault", "-w", raw.decode("latin1")],
-                       check=True, capture_output=True)
+                       check=True, capture_output=True, timeout=20)
     elif shutil.which("secret-tool"):
         p = subprocess.run(["secret-tool", "store", "--label=ScaricaLibri",
                             "service", SERVICE, "account", "vault"],
-                           input=raw, capture_output=True)
+                           input=raw, capture_output=True, timeout=20)
         if p.returncode != 0:
             raise OSError("secret-tool store fallito")
     else:
-        with open(_vault_path(), "wb") as fh:
-            fh.write(raw)
-        os.chmod(_vault_path(), 0o600)
+        raise OSError("Portachiavi sicuro non disponibile. Le credenziali restano solo in memoria.")
 
 
 def _load_blob():
@@ -97,26 +97,34 @@ def _load_blob():
             return _win_unprotect(fh.read())
     elif sys.platform == "darwin" and shutil.which("security"):
         p = subprocess.run(["security", "find-generic-password", "-s", SERVICE, "-w"],
-                           capture_output=True)
+                           capture_output=True, timeout=20)
+        if p.returncode == 44:
+            raise FileNotFoundError("nessuna voce nel portachiavi")
         if p.returncode != 0:
-            raise OSError("nessuna voce nel portachiavi")
+            raise OSError("Accesso al portachiavi non riuscito")
         return p.stdout.strip().decode("latin1").encode("latin1")
     elif shutil.which("secret-tool"):
         p = subprocess.run(["secret-tool", "lookup", "service", SERVICE, "account", "vault"],
-                           capture_output=True)
-        if p.returncode != 0 or not p.stdout:
-            raise OSError("nessuna voce nel portachiavi")
+                           capture_output=True, timeout=20)
+        if p.returncode != 0:
+            raise OSError("Accesso al portachiavi non riuscito")
+        if not p.stdout:
+            raise FileNotFoundError("nessuna voce nel portachiavi")
         return p.stdout
     else:
-        with open(_vault_path(), "rb") as fh:
-            return fh.read()
+        raise OSError("Portachiavi sicuro non disponibile")
 
 
 def load_all():
     try:
-        return json.loads(_load_blob().decode("utf-8"))
-    except Exception:
+        data = json.loads(_load_blob().decode("utf-8"))
+        if not isinstance(data, dict) or any(not isinstance(v, dict) for v in data.values()):
+            raise ValueError("Archivio inatteso")
+        return data
+    except FileNotFoundError:
         return {}
+    except Exception:
+        raise OSError("Portachiavi non leggibile. Le credenziali esistenti non saranno sovrascritte.") from None
 
 
 def save_all(vault):
@@ -127,14 +135,31 @@ def get_creds(platform_key):
     return load_all().get(platform_key, {})
 
 
+def set_account(platform_key, credentials):
+    with _LOCK, FileLock(_vault_path() + ".lock", timeout=10):
+        v = load_all()
+        v[platform_key] = dict(credentials)
+        save_all(v)
+
+
 def set_creds(platform_key, email, password):
-    v = load_all()
-    v[platform_key] = {"email": email, "password": password}
-    save_all(v)
+    set_account(platform_key, {"email": email, "password": password})
 
 
 def del_creds(platform_key):
-    v = load_all()
-    if platform_key in v:
-        del v[platform_key]
-        save_all(v)
+    with _LOCK, FileLock(_vault_path() + ".lock", timeout=10):
+        if legacy_exists():
+            raise OSError("È presente il vecchio archivio Linux in chiaro. Usa Elimina vecchio archivio nella pagina Account.")
+        v = load_all()
+        if platform_key in v:
+            del v[platform_key]
+            save_all(v)
+
+
+def legacy_exists():
+    return sys.platform not in ('win32', 'darwin') and os.path.isfile(_vault_path())
+
+def remove_legacy():
+    """Rimozione esplicita dell’intero vecchio archivio Linux in chiaro."""
+    if legacy_exists():
+        os.unlink(_vault_path())

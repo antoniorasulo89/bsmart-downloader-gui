@@ -1,7 +1,20 @@
 @echo off
-REM Crea il file .exe in un click (Windows)
-pip install -r requirements.txt
-pyinstaller --onefile --windowed --name ScaricaLibri --collect-all customtkinter app_gui.py --exclude-module torch --exclude-module torchvision --exclude-module torchaudio --exclude-module pandas --exclude-module scipy --exclude-module matplotlib --exclude-module sklearn --exclude-module numba --exclude-module llvmlite --exclude-module pyarrow --exclude-module tensorflow --exclude-module transformers --exclude-module cv2 --exclude-module yt_dlp --exclude-module av --exclude-module soundfile --exclude-module onnxruntime --exclude-module lxml --exclude-module sympy --exclude-module tiktoken --exclude-module regex --exclude-module IPython
-echo.
-echo Fatto! Trovi il file in dist\ScaricaLibri.exe
-pause
+setlocal
+cd /d "%~dp0"
+if not exist .venv\Scripts\python.exe py -3 -m venv .venv
+if errorlevel 1 exit /b 1
+.venv\Scripts\python.exe -m pip install pip==26.2.1
+if errorlevel 1 exit /b 1
+.venv\Scripts\python.exe -m pip install -r requirements-build.txt
+if errorlevel 1 exit /b 1
+.venv\Scripts\python.exe -m pip check
+if errorlevel 1 exit /b 1
+.venv\Scripts\python.exe -m pip_audit
+if errorlevel 1 exit /b 1
+.venv\Scripts\python.exe test_all.py
+if errorlevel 1 exit /b 1
+.venv\Scripts\python.exe test_security.py
+if errorlevel 1 exit /b 1
+.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --onefile --windowed --name Folio --icon assets\folio.ico --version-file assets\folio-version.txt --collect-all customtkinter app_gui.py
+if errorlevel 1 exit /b 1
+echo Fatto: dist\Folio.exe

@@ -9,12 +9,12 @@ import re
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse, unquote, quote
 
-import fitz
-import requests
+import pymupdf as fitz
+from . import network as requests
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.PublicKey import RSA
 
-from .common import LoginError, sanitize, UA_CHROME
+from .common import response_json, save_pdf, checked_zip, svg_pdf, LoginError, sanitize, UA_CHROME
 
 LABEL = "Zanichelli"
 AUTH_FIELDS = [("email", "Email (username)", False, True),
@@ -137,7 +137,7 @@ def list_books(state):
         else:
             dbg.append(f"licenses/real: HTTP {rl.status_code}")
     except Exception as e:
-        dbg.append(f"licenses/real: errore {e}")
+        dbg.append("licenses/real: connessione non riuscita")
     state["by_id"] = books
     return [{"id": k, "title": v["title"], "ok": bool(v["ereader_url"])} for k, v in books.items()]
 
@@ -146,6 +146,8 @@ def list_books(state):
 
 def _resolve_reader_url(location, cookie):
     """Segue i redirect fino al lettore reale (booktab o webreader)."""
+    if urlparse(location).scheme != "https" or not (urlparse(location).hostname or "").endswith(".zanichelli.it"):
+        raise RuntimeError("Indirizzo lettore non riconosciuto.")
     try:
         r = requests.get(location, headers={**UA_CHROME, "Referer": "https://my.zanichelli.it/",
                                             "Cookie": cookie},
@@ -318,11 +320,11 @@ def _download_booktab(isbn, cookie, progress):
         cfg_r = requests.get(f"{BOOKTAB}/v1/resources_web/{isbn}/{unit}/config.xml",
                              headers=_h(cookie), timeout=20)
         if cfg_r.status_code != 200:
-            continue
+            raise RuntimeError(f"Unità {i + 1} non disponibile. Download incompleto.")
         cfg = ET.fromstring(cfg_r.text)
         content = (cfg.findtext(".//content") or "").strip()
         if not content:
-            continue
+            raise RuntimeError(f"Contenuto dell’unità {i + 1} mancante.")
         pdf_key = content
         for e in cfg.iter("entry"):
             if e.attrib.get("key") == content + ".pdf" and (e.text or "").strip():
@@ -350,8 +352,8 @@ def _download_kitaboo(location, cookie, progress):
     progress(0, 1, "Validazione lettore…")
     usertoken = _validate_kitaboo_token(usertoken)
 
-    det = requests.get(f"{DISTRIB}/123/pc/book/details?bookID={book_id}",
-                       headers={**UA_CHROME, "usertoken": usertoken}, timeout=20).json()
+    det = response_json(requests.get(f"{DISTRIB}/123/pc/book/details?bookID={book_id}",
+                       headers={**UA_CHROME, "usertoken": usertoken}, timeout=20))
     book = det["bookList"][0]["book"]
 
     db = requests.get(
@@ -401,15 +403,14 @@ def _download_kitaboo(location, cookie, progress):
         progress(i, len(spine), f"Pagina {i + 1}/{len(spine)}…")
         picked = _pick_manifest(manifest, ref.attrib["idref"])
         if not picked:
-            continue
+            raise RuntimeError(f"Pagina {i + 1} assente dal manifest.")
         href, mt = picked
         try:
             enc = requests.get(ops(href), headers=rh(), timeout=30).text
             raw = _decrypt_page(enc_key, enc)
             if mt == "image/svg+xml":
-                svg = fitz.open(stream=raw, filetype="svg")
-                doc.insert_pdf(fitz.open(stream=svg.convert_to_pdf(), filetype="pdf"))
-                svg.close()
+                with fitz.open(stream=svg_pdf(raw), filetype="pdf") as page:
+                    doc.insert_pdf(page)
             else:
                 img = fitz.open(stream=raw, filetype="png" if mt.endswith("png") else "jpeg")
                 r0 = img[0].rect
@@ -418,7 +419,8 @@ def _download_kitaboo(location, cookie, progress):
                 img.close()
             done += 1
         except Exception:
-            continue
+            doc.close()
+            raise RuntimeError(f"Pagina {i + 1} non convertita: nessun PDF salvato.") from None
     if done == 0:
         raise RuntimeError("Nessuna pagina decifrata (formato inatteso?).")
     return doc, title
@@ -448,17 +450,16 @@ def download(state, book_id, out_dir, options, progress):
     final = _resolve_reader_url(location, cookie)
     host = urlparse(final).hostname or ""
 
-    if "booktab" in host:
+    if host == "web-booktab.zanichelli.it":
         progress(0, 1, "Libro BookTab…")
         writer, title = _download_booktab(isbn, cookie, progress)
         out = os.path.join(out_dir, sanitize(title) + ".pdf")
-        with open(out, "wb") as fh:
-            writer.write(fh)
-    elif "webreader" in host:
+        out = save_pdf(writer, out_dir, title)
+    elif host == "webreader.zanichelli.it":
         progress(0, 1, "Libro Kitaboo…")
         doc, title = _download_kitaboo(final, cookie, progress)
         out = os.path.join(out_dir, sanitize(title) + ".pdf")
-        doc.save(out)
+        out = save_pdf(doc, out_dir, title)
         doc.close()
     else:
         raise RuntimeError(f"Lettore non riconosciuto ({host}).")

@@ -6,11 +6,11 @@ import re
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-import requests
+from . import network as requests
 import msgpack
 from Crypto.Cipher import AES
 
-from .common import LoginError, sanitize, UA_SIMPLE
+from .common import response_json, save_pdf, checked_zip, svg_pdf, LoginError, sanitize, UA_SIMPLE
 
 LABEL = "bSmart / digibook24"
 AUTH_FIELDS = [
@@ -68,6 +68,8 @@ def login(creds):
     site = creds.get("_site", "bsmart")
     base = SITES[site]
     cookie = (creds.get("cookie") or "").strip().strip('"').strip("'")
+    if not cookie and site == "digibook24":
+        raise LoginError("Per digibook24 usa il cookie dell’accesso editore nel browser.")
     if not cookie:
         cookie = login_with_credentials(creds["email"].strip(), creds["password"])
     return {"base": base, "cookie": cookie}
@@ -88,11 +90,11 @@ def get_user_info(base, cookie):
 
 def get_books(base, headers):
     h = {**UA_SIMPLE, **headers}
-    books = requests.get(
+    books = response_json(requests.get(
         f"https://{base}/api/v6/books?page_thumb_size=medium&per_page=25000",
         headers=h, timeout=20,
-    ).json()
-    preatt = requests.get(f"https://{base}/api/v5/books/preactivations", headers=h, timeout=20).json()
+    ))
+    preatt = response_json(requests.get(f"https://{base}/api/v5/books/preactivations", headers=h, timeout=20))
     for p in preatt:
         if p.get("no_bsmart") is False:
             books.extend(p.get("books", []))
@@ -117,10 +119,10 @@ def get_book_resources(base, book, headers):
     h = {**UA_SIMPLE, **headers}
     info, page = [], 1
     while True:
-        r = requests.get(
+        r = response_json(requests.get(
             f"https://{base}/api/v5/books/{book['id']}/{book['current_edition']['revision']}/resources?per_page=500&page={page}",
             headers=h, timeout=20,
-        ).json()
+        ))
         info.extend(r)
         if len(r) < 500:
             break
@@ -193,8 +195,7 @@ def download(state, book_id, out_dir, options, progress):
     book = get_book_info(base, book_id.strip(), headers)
     info = get_book_resources(base, book, headers)
     assets = [a for r in info for a in r.get("assets", [])]
-    progress(0, 1, "Recupero chiave di cifratura…")
-    key = fetch_encryption_key()
+
 
     if options.get("resources"):
         assets = [a for a in assets if a.get("use") == "launch_file"]
@@ -203,11 +204,19 @@ def download(state, book_id, out_dir, options, progress):
     if not assets:
         raise RuntimeError("Nessun contenuto trovato per questo libro.")
 
+    key = fetch_encryption_key() if any(a.get("encrypted", True) is not False for a in assets) else None
     datas = [None] * len(assets)
     lock = threading.Lock()
     done = {"n": 0}
 
+    from .network import current, scope
+    operation = current()
+
     def job(i, asset):
+        with scope(operation):
+            return fetch_asset(i, asset)
+
+    def fetch_asset(i, asset):
         r = requests.get(asset["url"], headers=UA_SIMPLE, timeout=30)
         r.raise_for_status()
         data = r.content
@@ -225,21 +234,44 @@ def download(state, book_id, out_dir, options, progress):
 
     out_base = sanitize(f"{book.get('id', book_id)} - {book.get('title', book_id)}")
     if options.get("resources"):
-        folder = os.path.join(out_dir, out_base)
-        os.makedirs(folder, exist_ok=True)
-        for i, a in enumerate(assets):
-            with open(os.path.join(folder, os.path.basename(a.get("filename", f"file_{i}"))), "wb") as fh:
-                fh.write(datas[i])
+        import tempfile
+        import shutil
+        from .network import check
+        staging = tempfile.mkdtemp(prefix=".folio-", dir=out_dir)
+        try:
+            names = set()
+            for i, asset in enumerate(assets):
+                check()
+                filename = sanitize(os.path.basename(asset.get("filename", f"file_{i}")).replace("\\", "_"))
+                if filename.lower() in names:
+                    filename = f"{i + 1}-" + filename
+                names.add(filename.lower())
+                with open(os.path.join(staging, filename), "xb") as fh:
+                    fh.write(datas[i])
+            for suffix in range(1, 10000):
+                folder = os.path.join(out_dir, out_base + (f" ({suffix})" if suffix > 1 else ""))
+                if not os.path.exists(folder):
+                    check()
+                    os.rename(staging, folder)
+                    staging = None
+                    break
+            else:
+                raise RuntimeError("Troppi allegati con lo stesso nome.")
+        finally:
+            if staging:
+                shutil.rmtree(staging)
         progress(1, 1, "Allegati salvati.")
         return folder
 
     writer = PdfWriter()
     for i, data in enumerate(datas):
         reader = PdfReader(io.BytesIO(data))
-        writer.add_page(reader.pages[0])
+        if not reader.pages:
+            raise RuntimeError("Pagina PDF vuota: download incompleto.")
+        for page in reader.pages:
+            writer.add_page(page)
         progress(i + 1, len(datas), f"Unisco pagina {i + 1}/{len(datas)}…")
     out_pdf = os.path.join(out_dir, out_base + ".pdf")
-    with open(out_pdf, "wb") as fh:
-        writer.write(fh)
+    out_pdf = save_pdf(writer, out_dir, out_base)
     progress(1, 1, "PDF salvato!")
     return out_pdf

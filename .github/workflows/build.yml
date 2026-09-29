@@ -1,67 +1,59 @@
-name: build
+name: Folio native packages
 
 on:
+  workflow_dispatch:
   push:
-    tags:
-      - "v*"
+    branches:
+      - 'codex/folio-native-build-*'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
-            asset: ScaricaLibri-Windows.exe
-            build_name: ScaricaLibri
+            platform: Windows
           - os: ubuntu-latest
-            asset: ScaricaLibri-Linux
-            build_name: ScaricaLibri
+            platform: Linux
           - os: macos-latest
-            asset: ScaricaLibri-macOS
-            build_name: ScaricaLibri
+            platform: macOS
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Tk (Linux)
+      - name: Tk and virtual display (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y python3-tk tk
-
+        run: sudo apt-get update && sudo apt-get install -y python3-tk tk xvfb
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Build with PyInstaller
-        run: >
-          pyinstaller --onefile --windowed --name ${{ matrix.build_name }}
-          --collect-all customtkinter app_gui.py
-          --exclude-module torch --exclude-module torchvision --exclude-module torchaudio
-          --exclude-module pandas --exclude-module scipy --exclude-module matplotlib
-          --exclude-module sklearn --exclude-module numba --exclude-module llvmlite
-          --exclude-module pyarrow --exclude-module tensorflow --exclude-module transformers
-          --exclude-module cv2 --exclude-module yt_dlp --exclude-module av
-          --exclude-module soundfile --exclude-module onnxruntime --exclude-module lxml
-          --exclude-module sympy --exclude-module tiktoken --exclude-module regex
-          --exclude-module IPython
-
-      - name: Rename asset (non-Windows)
-        if: runner.os != 'Windows'
+          python-version: '3.13'
+      - name: Install and audit dependencies
         run: |
-          mv dist/ScaricaLibri dist/${{ matrix.asset }}
-          chmod +x dist/${{ matrix.asset }}
-
-      - name: Rename asset (Windows)
-        if: runner.os == 'Windows'
-        run: mv dist/ScaricaLibri.exe dist/${{ matrix.asset }}
-
-      - name: Upload to release
-        uses: softprops/action-gh-release@v2
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-build.txt
+          python -m pip check
+          python -m pip_audit
+      - name: Offline regressions (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a python test_all.py
+          xvfb-run -a python test_security.py
+      - name: Offline regressions (Windows/macOS)
+        if: runner.os != 'Linux'
+        run: |
+          python test_all.py
+          python test_security.py
+      - name: Compile, smoke test and package
+        run: python scripts/package_ci.py ${{ matrix.platform }}
+      - name: Upload native ZIP
+        uses: actions/upload-artifact@v4
         with:
-          files: dist/${{ matrix.asset }}
-          fail_on_unmatched_files: true
+          name: Folio-${{ matrix.platform }}
+          path: |
+            packages/Folio-${{ matrix.platform }}.zip
+            packages/Folio-${{ matrix.platform }}.zip.sha256
+          if-no-files-found: error
+          retention-days: 14

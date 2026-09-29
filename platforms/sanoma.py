@@ -9,10 +9,10 @@ import re
 import tempfile
 import zipfile
 
-import fitz
-import requests
+import pymupdf as fitz
+from . import network as requests
 
-from .common import LoginError, sanitize, UA_SIMPLE
+from .common import response_json, save_pdf, checked_zip, svg_pdf, LoginError, sanitize, UA_SIMPLE
 
 LABEL = "Sanoma"
 AUTH_FIELDS = [("email", "Email account Sanoma", False, True),
@@ -30,12 +30,12 @@ NEEDS_LIST = True
 def login(creds):
     email, password = creds["email"].strip(), creds["password"]
     try:
-        r = requests.post(
+        r = response_json(requests.post(
             f"{API}/login",
             headers={**UA_SIMPLE, "Content-Type": "application/json", "X-Timezone-Offset": "+0200"},
             json={"id": email, "password": password},
             timeout=20,
-        ).json()
+        ))
     except Exception:
         raise LoginError("Server Sanoma non raggiungibile. Riprova più tardi.")
     if r.get("code") != 0:
@@ -51,7 +51,7 @@ def _auth(state):
 
 
 def list_books(state):
-    r = requests.get(f"{API}/books?app=true", headers=_auth(state), timeout=20).json()
+    r = response_json(requests.get(f"{API}/books?app=true", headers=_auth(state), timeout=20))
     books = []
     for b in (r.get("result") or {}).get("data", []):
         books.append({"id": str(b.get("gedi", "")), "title": b.get("name", "?"),
@@ -85,6 +85,7 @@ def download(state, book_id, out_dir, options, progress):
         progress(0, 1, "Estraggo le pagine…")
         pages_dir = os.path.join(tmp, "pages")
         with zipfile.ZipFile(zpath) as zh:
+            checked_zip(zh)
             for name in zh.namelist():
                 m = re.search(r"(?:^|/)pages/(.+)$", name)
                 if not m or name.endswith("/"):
@@ -110,16 +111,16 @@ def download(state, book_id, out_dir, options, progress):
                 # qualche pagina può avere nome diverso: prendi il primo svg
                 cands = [f for f in os.listdir(os.path.join(pages_dir, n)) if f.lower().endswith(".svg")]
                 if not cands:
-                    continue
+                    raise RuntimeError(f"Pagina {n} mancante: download incompleto.")
                 svg_path = os.path.join(pages_dir, n, cands[0])
             with open(svg_path, "rb") as fh:
-                svg = fitz.open(stream=fh.read(), filetype="svg")
-            doc.insert_pdf(fitz.open(stream=svg.convert_to_pdf(), filetype="pdf"))
-            svg.close()
+                converted = svg_pdf(fh.read(), os.path.dirname(svg_path))
+            with fitz.open(stream=converted, filetype="pdf") as page:
+                doc.insert_pdf(page)
 
         progress(1, 1, "Salvo il PDF…")
         out = os.path.join(out_dir, sanitize(title) + ".pdf")
-        doc.save(out)
+        out = save_pdf(doc, out_dir, title)
         doc.close()
         progress(1, 1, "PDF salvato!")
         return out

@@ -11,10 +11,10 @@ import sqlite3
 import tempfile
 import zipfile
 
-import requests
+from . import network as requests
 from pypdf import PdfReader, PdfWriter
 
-from .common import LoginError, sanitize, UA_SIMPLE
+from .common import response_json, save_pdf, checked_zip, svg_pdf, LoginError, sanitize, UA_SIMPLE
 
 LABEL = "HUB Scuola (Young + Kids)"
 AUTH_FIELDS = [
@@ -47,14 +47,14 @@ def login(creds):
         if data.get("result") != "OK" or not (data.get("data") or {}).get("sessionId"):
             raise LoginError("Email e/o password non corretti.")
         d = data["data"]
-        il = requests.post(
+        il = response_json(requests.post(
             "https://ms-api.hubscuola.it/user/internalLogin",
             json={"username": d.get("username", email),
                   "sessionId": d["sessionId"],
                   "jwt": d.get("hubEncryptedUser")},
             headers={**UA_SIMPLE, "Content-Type": "application/json"},
             timeout=20,
-        ).json()
+        ))
         token = il.get("tokenId")
         if not token:
             raise LoginError("Login HUB non completato. Riprova.")
@@ -67,16 +67,15 @@ def _h(state):
 
 def list_books(state):
     books = []
+    authorized = 0
     for section in ("young", "kids"):
-        try:
-            r = requests.get(f"https://ms-api.hubscuola.it/getLibrary/{section}",
-                             headers=_h(state), timeout=20)
-        except Exception:
-            continue
+        r = requests.get(f"https://ms-api.hubscuola.it/getLibrary/{section}",
+                         headers=_h(state), timeout=20)
         if r.status_code == 401:
             continue
         r.raise_for_status()
-        data = r.json()
+        authorized += 1
+        data = response_json(r)
         items = data if isinstance(data, list) else data.get("books") or data.get("data") or []
         for b in items:
             bid = str(b.get("id", ""))
@@ -85,8 +84,8 @@ def list_books(state):
             tag = f" [{section}]" if any(x["id"] == bid for x in books) else ""
             books.append({"id": bid, "title": b.get("title", bid) + tag})
             state["sections"].setdefault(bid, section)
-    if not books:
-        raise LoginError("Sessione HUB scaduta o libreria vuota. Riaccedi.")
+    if not authorized:
+        raise LoginError("Sessione HUB scaduta. Riaccedi.")
     return books
 
 
@@ -116,7 +115,7 @@ def download(state, book_id, out_dir, options, progress):
             raise RuntimeError(f"Pacchetto non scaricabile (HTTP {z.status_code}).")
         pack_dir = os.path.join(tmp, "pack")
         with zipfile.ZipFile(io.BytesIO(z.content)) as zh:
-            zh.extractall(pack_dir)
+            checked_zip(zh).extractall(pack_dir)
 
         progress(0, 1, "Leggo l'indice dei capitoli…")
         db_path = None
@@ -151,23 +150,27 @@ def download(state, book_id, out_dir, options, progress):
                     headers=_h(state), timeout=300,
                 )
                 if u.status_code != 200:
-                    continue
+                    raise RuntimeError(f"Capitolo {i + 1} non scaricato (HTTP {u.status_code}).")
                 with zipfile.ZipFile(io.BytesIO(u.content)) as zh:
+                    checked_zip(zh)
+                    chapter_pages = 0
                     for name in sorted(zh.namelist()):
                         if name.lower().endswith(".pdf"):
                             reader = PdfReader(io.BytesIO(zh.read(name)))
                             for pg in reader.pages:
                                 writer.add_page(pg)
                                 pages += 1
+                                chapter_pages += 1
+                    if not chapter_pages:
+                        raise RuntimeError(f"Capitolo {i + 1} senza pagine PDF.")
             except Exception:
-                continue
+                raise RuntimeError(f"Download incompleto: capitolo {i + 1} non disponibile. Nessun PDF salvato.") from None
         if pages == 0:
             raise RuntimeError("Nessuna pagina scaricata (volume non disponibile?).")
 
         progress(1, 1, "Salvo il PDF…")
         out = os.path.join(out_dir, sanitize(title) + ".pdf")
-        with open(out, "wb") as fh:
-            writer.write(fh)
+        out = save_pdf(writer, out_dir, title)
         progress(1, 1, "PDF salvato!")
         return out
     finally:
