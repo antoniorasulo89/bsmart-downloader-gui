@@ -32,14 +32,14 @@ def check(name, fn):
 
 # 1. registro interfacce
 def t_registry():
-    assert len(PLATFORMS) == 8, len(PLATFORMS)
+    assert len(PLATFORMS) == 7, len(PLATFORMS)
     for p in PLATFORMS:
         m = p["mod"]
         for attr in ("LABEL", "AUTH_FIELDS", "ID_LABEL", "OPTIONS", "NEEDS_LOGIN",
                      "NEEDS_LIST", "login", "list_books", "download"):
             assert hasattr(m, attr), f"{p['key']} manca {attr}"
 
-check("registry 8 piattaforme", t_registry)
+check("registry 7 piattaforme", t_registry)
 
 
 # 2. bsmart decrypt roundtrip (formato reale)
@@ -244,6 +244,9 @@ def t_hub():
     db.execute("INSERT INTO offline_tbl VALUES (?, ?)",
                ("meyoung/publication/7", json.dumps(
                    {"indexContents": {"chapters": [{"chapterId": "c1"}]}})))
+    db.execute("INSERT INTO offline_tbl VALUES (?, ?)",
+               ("mekids/publication/9", json.dumps(
+                   {"indexContents": {"chapters": [{"chapterId": "c1"}]}})))
     db.commit()
     db.close()
     pack = io.BytesIO()
@@ -260,17 +263,21 @@ def t_hub():
         g.side_effect = [
             FakeResp(payload={"result": "OK", "data": {"username": "a@b.it",
                       "sessionId": "S", "hubEncryptedUser": "J"}}),  # loginJsonp
-            FakeResp(payload=[{"id": 7, "title": "Volume Sette"}]),  # getLibrary (login? no: list)
-            FakeResp(payload=[{"id": 7, "title": "Volume Sette"}]),  # getLibrary (title lookup)
+            FakeResp(payload=[{"id": 7, "title": "Volume Sette"}]),  # young
+            FakeResp(payload=[{"id": 9, "title": "Kids Nove"}]),  # kids
+            FakeResp(payload=[{"id": 7, "title": "Volume Sette"}]),  # young (title lookup)
+            FakeResp(payload=[{"id": 9, "title": "Kids Nove"}]),  # kids (title lookup)
             FakeResp(content=pack.getvalue()),  # publication.zip
             FakeResp(content=chap.getvalue()),  # chapter zip
         ]
         post.return_value = FakeResp(payload={"tokenId": "TOK"})
-        st = hubmod.login({"_site": "young", "email": "a@b.it", "password": "x", "token": ""})
-        assert st == {"platform": "young", "token": "TOK"}, st
+        st = hubmod.login({"_site": None, "email": "a@b.it", "password": "x", "token": ""})
+        assert st["token"] == "TOK" and st["sections"] == {}, st
         books = hubmod.list_books(st)
-        assert books == [{"id": "7", "title": "Volume Sette"}], books
-        out = hubmod.download(st, "7", tempfile.mkdtemp(), {}, lambda *a: None)
+        assert books == [{"id": "7", "title": "Volume Sette"},
+                         {"id": "9", "title": "Kids Nove"}], books
+        assert st["sections"] == {"7": "young", "9": "kids"}, st["sections"]
+        out = hubmod.download(st, "9", tempfile.mkdtemp(), {}, lambda *a: None)
         d = fitz.open(out)
         assert d.page_count == 1, d.page_count
 
@@ -313,11 +320,23 @@ check("hoepli mock", t_hoepli)
 # 8. GUI si costruisce
 def t_gui():
     import app_gui
+    assert len(PLATFORMS) == 7
     app = app_gui.App()
-    assert len(app.plat_box["values"]) == 8
+    assert len(app.plat_box["values"]) == 7
     app.destroy()
 
 check("gui build", t_gui)
+
+
+def t_vault():
+    import vault
+    vault.set_creds("__test__", "a@b.it", "segreto123")
+    got = vault.get_creds("__test__")
+    assert got == {"email": "a@b.it", "password": "segreto123"}, got
+    vault.del_creds("__test__")
+    assert vault.get_creds("__test__") == {}
+
+check("vault roundtrip", t_vault)
 
 
 print()

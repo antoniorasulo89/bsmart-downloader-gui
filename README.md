@@ -8,7 +8,7 @@ Porting Python dei downloader di [Leone25](https://github.com/Leone25):
 | bSmart / digibook24 | email + password | ID libro (dalla lista) |
 | Sanoma | email + password | gedi (dalla lista) |
 | Zanichelli (BookTab + Kitaboo) | email + password | ISBN (dalla lista) |
-| HUB Young / HUB Kids | email + password | ID volume (dalla lista) |
+| HUB Scuola (Young + Kids) | email + password | ID volume (dalla lista) |
 | MyLim (Loescher) | email + password | ISBN (dalla lista) |
 | Hoepli demo | nessuno | URL della demo |
 
@@ -17,6 +17,9 @@ Porting Python dei downloader di [Leone25](https://github.com/Leone25):
 **[Scarica ScaricaLibri.exe](https://github.com/antoniorasulo89/bsmart-downloader-gui/releases/latest/download/ScaricaLibri.exe)**
 
 Doppio click e via: scegli la piattaforma, accedi, scegli il libro, premi SCARICA.
+
+Spunta **Ricordami** per salvare email e password cifrate sul PC
+(solo il tuo utente Windows può leggerle): al prossimo avvio trovi già tutto compilato.
 
 ## Come ottenere token manuali (solo se il login con credenziali non va)
 

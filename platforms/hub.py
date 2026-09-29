@@ -16,7 +16,7 @@ from pypdf import PdfReader, PdfWriter
 
 from .common import LoginError, sanitize, UA_SIMPLE
 
-LABEL = "HUB Young / HUB Kids"
+LABEL = "HUB Scuola (Young + Kids)"
 AUTH_FIELDS = [
     ("email", "Email account HUB Scuola", False, True),
     ("password", "Password", True, True),
@@ -30,11 +30,8 @@ OPTIONS = []
 NEEDS_LOGIN = True
 NEEDS_LIST = True
 
-LIB_OF = {"young": "getLibrary/young", "kids": "getLibrary/kids"}
-
 
 def login(creds):
-    platform = creds.get("_site", "young")
     token = (creds.get("token") or "").strip()
     if not token:
         email, password = creds["email"].strip(), creds["password"]
@@ -61,7 +58,7 @@ def login(creds):
         token = il.get("tokenId")
         if not token:
             raise LoginError("Login HUB non completato. Riprova.")
-    return {"platform": platform, "token": token}
+    return {"token": token, "sections": {}}
 
 
 def _h(state):
@@ -69,25 +66,34 @@ def _h(state):
 
 
 def list_books(state):
-    platform = state["platform"]
-    lib = LIB_OF.get(platform, "getLibrary/young")
-    r = requests.get(f"https://ms-api.hubscuola.it/{lib}", headers=_h(state), timeout=20)
-    if r.status_code == 401:
-        raise LoginError("Sessione HUB scaduta. Riaccedi.")
-    r.raise_for_status()
-    data = r.json()
-    items = data if isinstance(data, list) else data.get("books") or data.get("data") or []
     books = []
-    for b in items:
-        bid = str(b.get("id", ""))
-        if bid:
-            books.append({"id": bid, "title": b.get("title", bid)})
+    for section in ("young", "kids"):
+        try:
+            r = requests.get(f"https://ms-api.hubscuola.it/getLibrary/{section}",
+                             headers=_h(state), timeout=20)
+        except Exception:
+            continue
+        if r.status_code == 401:
+            continue
+        r.raise_for_status()
+        data = r.json()
+        items = data if isinstance(data, list) else data.get("books") or data.get("data") or []
+        for b in items:
+            bid = str(b.get("id", ""))
+            if not bid:
+                continue
+            tag = f" [{section}]" if any(x["id"] == bid for x in books) else ""
+            books.append({"id": bid, "title": b.get("title", bid) + tag})
+            state["sections"].setdefault(bid, section)
+    if not books:
+        raise LoginError("Sessione HUB scaduta o libreria vuota. Riaccedi.")
     return books
 
 
 def download(state, book_id, out_dir, options, progress):
-    platform, token = state["platform"], state["token"]
+    token = state["token"]
     volume = book_id.strip()
+    platform = (state.get("sections") or {}).get(volume, "young")
 
     # titolo dalla libreria se disponibile
     title = f"volume-{volume}"

@@ -10,6 +10,13 @@ from tkinter import ttk, filedialog, messagebox
 
 from platforms import PLATFORMS, BY_KEY
 
+try:
+    import vault as _vault
+    _vault.get_creds("__probe__")
+    VAULT_OK = True
+except Exception:
+    VAULT_OK = False
+
 
 class App(tk.Tk):
     def __init__(self):
@@ -102,6 +109,17 @@ class App(tk.Tk):
             ttk.Entry(self.auth_frame, textvariable=var, width=50,
                       show="•" if is_pw else "").pack(fill="x", padx=6, pady=2)
             self.auth_vars[key] = var
+        self.remember_var = tk.BooleanVar(value=False)
+        saved = _vault.get_creds(e["key"]) if VAULT_OK else {}
+        if saved:
+            if "email" in self.auth_vars:
+                self.auth_vars["email"].set(saved.get("email", ""))
+            if "password" in self.auth_vars:
+                self.auth_vars["password"].set(saved.get("password", ""))
+            self.remember_var.set(True)
+        if any(f[2] for f in mod.AUTH_FIELDS):
+            ttk.Checkbutton(self.auth_frame, text="Ricordami (salva password cifrata su questo PC)",
+                            variable=self.remember_var).pack(anchor="w", padx=6)
         ttk.Button(self.auth_frame, text="ACCEDI E CARICA I LIBRI",
                    command=self._load_books_thread).pack(fill="x", padx=6, pady=6)
         self._render_opts()
@@ -188,6 +206,11 @@ class App(tk.Tk):
         self._log(f"[{label}] login…")
         try:
             self.state = mod.login(creds)
+            if VAULT_OK and "password" in creds and creds.get("password"):
+                if self.remember_var.get():
+                    _vault.set_creds(e["key"], creds.get("email", ""), creds["password"])
+                else:
+                    _vault.del_creds(e["key"])
             user = self.state.get("username")
             if user:
                 self._log(f"Ciao {user}!")
