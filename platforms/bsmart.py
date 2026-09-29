@@ -53,7 +53,9 @@ def login_with_credentials(email, password):
     p = s.post("https://www.bsmart.it/users/sign_in", data=data, timeout=20)
     low = p.text.lower()
     if "email o password non validi" in low:
-        raise LoginError("Email o password non validi.")
+        raise LoginError("Email o password non validi. Se entri con Google, Microsoft o "
+                         "account editore (ELI...), la password non funziona: usa il campo "
+                         "«Cookie manuale» qui sotto.")
     if "/users/sign_in" in p.url and 'id="new_user"' in p.text:
         raise LoginError("Login non riuscito (controlla email/password).")
     cookie = s.cookies.get("_bsw_session_v1_production")

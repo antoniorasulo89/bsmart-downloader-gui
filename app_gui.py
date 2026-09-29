@@ -155,7 +155,10 @@ class App(tk.Tk):
         self.book_list.delete(0, "end")
         for b in self.books:
             if q in f"{b['id']} {b['title']}".lower():
-                self.book_list.insert("end", f"{b['id']} — {b['title']}")
+                label = f"{b['id']} — {b['title']}"
+                if b.get("ok") is False:
+                    label += " (non scaricabile)"
+                self.book_list.insert("end", label)
 
     def _on_select(self, _evt=None):
         sel = self.book_list.curselection()

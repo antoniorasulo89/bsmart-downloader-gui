@@ -83,12 +83,17 @@ def login(creds):
 def _add_licenses(books, licenses):
     for lic in licenses or []:
         vol = (lic.get("volume") or {})
-        if not vol.get("ereader_url") or not vol.get("isbn"):
+        if not vol.get("isbn"):
             continue
-        books[str(vol["isbn"])] = {
+        isbn = str(vol["isbn"])
+        entry = books.setdefault(isbn, {
             "title": ((vol.get("opera") or {}).get("title")) or "?",
-            "ereader_url": vol["ereader_url"],
-        }
+            "ereader_url": vol.get("ereader_url") or "",
+            "license_type": lic.get("license_type") or "",
+        })
+        # se un'altra licenza dello stesso libro ha l'URL, usala
+        if not entry["ereader_url"] and vol.get("ereader_url"):
+            entry["ereader_url"] = vol["ereader_url"]
 
 
 def list_books(state):
@@ -113,15 +118,11 @@ def list_books(state):
                    f"chiavi data={sorted(data.keys())[:8]}")
         for l in lic:
             vol = l.get("volume") or {}
-            if not vol.get("ereader_url") and len(dbg) < 16:
+            if not vol.get("ereader_url") and len(dbg) < 14:
                 info = vol.get("ereader_info")
                 dbg.append(f"senza URL: titolo={(vol.get('opera') or {}).get('title', '?')[:50]} "
-                           f"ereader_url={vol.get('ereader_url')!r:.60} "
-                           f"edigita_url={vol.get('edigita_url')!r:.80} "
-                           f"laze_url={vol.get('laze_url')!r:.80} "
-                           f"preview={vol.get('preview')!r:.80} "
-                           f"ereader_info={sorted(info.keys())[:10] if isinstance(info, dict) else type(info).__name__} "
-                           f"license_type={l.get('license_type')!r}")
+                           f"tipo={l.get('license_type')!r} "
+                           f"laze={(vol.get('laze_url') or '')[:60]}")
         _add_licenses(books, lic)
         pages = (data.get("pagination") or {}).get("pages", 0)
         if not pages or pages == page:
@@ -138,7 +139,7 @@ def list_books(state):
     except Exception as e:
         dbg.append(f"licenses/real: errore {e}")
     state["by_id"] = books
-    return [{"id": k, "title": v["title"]} for k, v in books.items()]
+    return [{"id": k, "title": v["title"], "ok": bool(v["ereader_url"])} for k, v in books.items()]
 
 
 # ---------- risoluzione lettore ----------
@@ -433,6 +434,10 @@ def download(state, book_id, out_dir, options, progress):
         book = (state.get("by_id") or {}).get(isbn)
     if book is None:
         raise RuntimeError("Libro non trovato nella tua libreria.")
+    if not book.get("ereader_url"):
+        raise RuntimeError(
+            "Questo elemento è una licenza virtuale o un corso di esercizi, "
+            "non un libro scaricabile (apribile solo dal browser).")
     cookie = state["cookie"]
 
     progress(0, 1, "Riconosco il lettore…")
