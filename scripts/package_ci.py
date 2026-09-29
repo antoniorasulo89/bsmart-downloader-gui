@@ -1,6 +1,8 @@
 """Pacchetti nativi compilati e verificati dal runner GitHub."""
 import argparse
 import hashlib
+import os
+import stat
 import platform
 from pathlib import Path
 import shutil
@@ -23,7 +25,7 @@ subprocess.run(smoke,cwd=root,check=True)
 package=root/'packages';package.mkdir(exist_ok=True)
 temporary=package/f'Folio-{args.target}'
 temporary.mkdir(exist_ok=True)
-if args.target=='macOS':shutil.copytree(root/'dist/Folio.app',temporary/'Folio.app',dirs_exist_ok=True)
+if args.target=='macOS':shutil.copytree(root/'dist/Folio.app',temporary/'Folio.app',dirs_exist_ok=True,symlinks=True)
 else:shutil.copy2(binary,temporary/binary.name)
 for name in ['README.md','THIRD_PARTY_NOTICES.md','requirements.txt','requirements-build.txt','version.py']:
     shutil.copy2(root/name,temporary/name)
@@ -36,7 +38,13 @@ for file in sorted(temporary.rglob('*')):
 archive=package/f'Folio-{args.target}.zip'
 with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED) as z:
     for file in sorted(temporary.rglob('*')):
-        if file.is_file():z.write(file,file.relative_to(package))
+        if file.is_symlink():
+            info=zipfile.ZipInfo(file.relative_to(package).as_posix())
+            info.create_system=3
+            info.external_attr=(stat.S_IFLNK | 0o777)<<16
+            z.writestr(info,os.readlink(file))
+        elif file.is_file():
+            z.write(file,file.relative_to(package))
 with zipfile.ZipFile(archive) as z:assert z.testzip() is None
 checksum=hashlib.sha256(archive.read_bytes()).hexdigest()
 archive.with_suffix('.zip.sha256').write_text(checksum+'  '+archive.name+'\n',encoding='utf-8')

@@ -161,6 +161,15 @@ class SecurityTests(unittest.TestCase):
             self.assertTrue(store.error)
             with self.assertRaises(OSError):store.add(document)
         self.assertEqual(index.read_bytes(),b'{broken')
+    def test_index_normalizes_equivalent_paths(self):
+        one=self.root/'one.pdf';one.write_bytes(pdf())
+        alias=self.root/'sub'/'..'/'one.pdf'
+        (self.root/'sub').mkdir()
+        index=self.root/'index.json'
+        index.write_text(json.dumps([{'path':str(alias),'title':'one'},{'path':str(one),'title':'duplicate'}]))
+        store=Library(index)
+        self.assertEqual(len(store.available()),1)
+        self.assertEqual(store.records[0]['path'],str(one.resolve()))
     def test_bad_metadata_recovers_and_instances_merge(self):
         one=self.root/'one.pdf';one.write_bytes(pdf())
         two=self.root/'two.pdf';two.write_bytes(pdf())

@@ -25,6 +25,8 @@ def check(name, fn):
     try:
         with tempfile.TemporaryDirectory() as library_dir, patch("library.index_path", return_value=os.path.join(library_dir, "library.json")):
             fn()
+            import gc
+            gc.collect()
         print("OK  ", name)
     except Exception as e:
         fails.append(name)

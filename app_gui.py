@@ -54,6 +54,8 @@ class PageNavigation:
 
 class App(ctk.CTk):
     def __init__(self):
+        import gc
+        gc.collect()  # Gli oggetti Tk dei precedenti root si liberano nel thread principale.
         super().__init__()
         self.title(f"Folio {VERSION} — Biblioteca offline")
         self.geometry("1180x820")
@@ -260,7 +262,8 @@ class App(ctk.CTk):
                         self._log(store.warning)
                     self._render_downloaded(records)
             self.events.put(complete)
-        threading.Thread(target=worker, daemon=True).start()
+        self._library_thread = threading.Thread(target=worker, daemon=True)
+        self._library_thread.start()
 
     def _render_downloaded(self, available):
         query = self.local_search.get().strip().lower()
@@ -740,6 +743,11 @@ class App(ctk.CTk):
         self.closing = True
         self.cancel_event.set()
         self.unbind("<FocusIn>")
+        worker = getattr(self, "_library_thread", None)
+        if worker and worker.is_alive():
+            worker.join(timeout=2)
+        with self.events.mutex:
+            self.events.queue.clear()
         for timer in self.tk.call("after", "info"):
             self.tk.call("after", "cancel", timer)
         super().destroy()

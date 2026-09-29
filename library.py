@@ -35,10 +35,19 @@ class Library:
             if not isinstance(records, list):
                 raise ValueError("Formato inatteso")
             self.records = []
+            seen = set()
             for record in records:
                 if not isinstance(record, dict) or not isinstance(record.get("path"), str):
                     continue
                 r = dict(record)
+                try:
+                    r["path"] = str(Path(r["path"]).resolve())
+                except (OSError, ValueError):
+                    continue
+                key = os.path.normcase(r["path"])
+                if key in seen:
+                    continue
+                seen.add(key)
                 r["title"] = r.get("title") if isinstance(r.get("title"), str) else Path(r["path"]).stem
                 for field in ("platform", "book_id"):
                     if not isinstance(r.get(field), str):
