@@ -3,4 +3,5 @@ pypdf
 pymupdf
 msgpack
 pycryptodome
+customtkinter>=5.2
 pyinstaller

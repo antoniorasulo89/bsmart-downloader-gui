@@ -1,0 +1,67 @@
+name: build
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            asset: ScaricaLibri-Windows.exe
+            build_name: ScaricaLibri
+          - os: ubuntu-latest
+            asset: ScaricaLibri-Linux
+            build_name: ScaricaLibri
+          - os: macos-latest
+            asset: ScaricaLibri-macOS
+            build_name: ScaricaLibri
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Tk (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y python3-tk tk
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build with PyInstaller
+        run: >
+          pyinstaller --onefile --windowed --name ${{ matrix.build_name }}
+          --collect-all customtkinter app_gui.py
+          --exclude-module torch --exclude-module torchvision --exclude-module torchaudio
+          --exclude-module pandas --exclude-module scipy --exclude-module matplotlib
+          --exclude-module sklearn --exclude-module numba --exclude-module llvmlite
+          --exclude-module pyarrow --exclude-module tensorflow --exclude-module transformers
+          --exclude-module cv2 --exclude-module yt_dlp --exclude-module av
+          --exclude-module soundfile --exclude-module onnxruntime --exclude-module lxml
+          --exclude-module sympy --exclude-module tiktoken --exclude-module regex
+          --exclude-module IPython
+
+      - name: Rename asset (non-Windows)
+        if: runner.os != 'Windows'
+        run: |
+          mv dist/ScaricaLibri dist/${{ matrix.asset }}
+          chmod +x dist/${{ matrix.asset }}
+
+      - name: Rename asset (Windows)
+        if: runner.os == 'Windows'
+        run: mv dist/ScaricaLibri.exe dist/${{ matrix.asset }}
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.asset }}
+          fail_on_unmatched_files: true

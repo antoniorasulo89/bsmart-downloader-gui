@@ -322,7 +322,15 @@ def t_gui():
     import app_gui
     assert len(PLATFORMS) == 7
     app = app_gui.App()
-    assert len(app.plat_box["values"]) == 7
+    assert len(app.plat_buttons) == 7
+    assert "email" in app.auth_vars  # bsmart di default
+    app._select_platform("hoepli")  # senza login
+    app.books = [{"id": "http://demo/x", "title": "Demo"}]
+    app._filter_books()
+    assert len(app.book_rows) == 1
+    app._pick("http://demo/x")
+    assert app.selected_id == "http://demo/x"
+    assert str(app.dl_btn.cget("state")) == "normal"
     app.destroy()
 
 check("gui build", t_gui)
@@ -342,20 +350,27 @@ check("vault roundtrip", t_vault)
 def t_context_menu():
     import app_gui
     app = app_gui.App()
+    # binding presenti (il recapito tasti e meccanismo Tk standard)
     assert app.bind_all("<Button-3>"), "binding tasto destro mancante"
-    # incolla via clipboard nel campo email
-    app.plat_box.current(0)
-    app._render_auth()
+    assert app.bind_all("<Control-v>"), "binding incolla mancante"
     entry = app.auth_widgets["email"]
-    entry.focus_force()
     app.clipboard_clear()
     app.clipboard_append("test@incolla.it")
-    entry.event_generate("<<Paste>>")
-    app.update_idletasks()
+    assert app._edit_op("paste", entry) is True
+    assert entry.get() == "test@incolla.it", repr(entry.get())
+    entry.select_range(0, "end")
+    assert app._edit_op("copy", entry) is True
+    entry.delete(0, "end")
+    assert app._edit_op("paste", entry) is True
+    assert entry.get() == "test@incolla.it", repr(entry.get())
+    entry.select_range(0, "end")
+    assert app._edit_op("cut", entry) is True
+    assert entry.get() == "", repr(entry.get())
+    assert app._edit_op("paste", entry) is True
     assert entry.get() == "test@incolla.it", repr(entry.get())
     app.destroy()
 
-check("menu tasto destro", t_context_menu)
+check("copia/incolla nei campi", t_context_menu)
 
 
 print()

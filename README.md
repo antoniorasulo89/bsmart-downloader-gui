@@ -1,29 +1,33 @@
-# ScaricaLibri — downloader multi-piattaforma
+# 📚 ScaricaLibri — downloader multi-piattaforma
 
-Interfaccia grafica unica per scaricare i tuoi libri scolastici come PDF offline.
-Porting Python dei downloader di [Leone25](https://github.com/Leone25):
+Interfaccia facile in **3 passi** per scaricare i tuoi libri scolastici come PDF offline.
+Scegli la piattaforma, accedi, tocca il libro, premi SCARICA. Facile quasi come un gioco. 🎮
+
+Porting Python dei downloader di [Leone25](https://github.com/Leone25).
 
 | Piattaforma | Login | Cosa serve |
 |---|---|---|
-| bSmart / digibook24 | email + password | ID libro (dalla lista) |
-| Sanoma | email + password | gedi (dalla lista) |
-| Zanichelli (BookTab + Kitaboo) | email + password | ISBN (dalla lista) |
-| HUB Scuola (Young + Kids) | email + password | ID volume (dalla lista) |
-| MyLim (Loescher) | email + password | ISBN (dalla lista) |
+| bSmart / digibook24 | email + password | toccare il libro nella lista |
+| Sanoma | email + password | toccare il libro nella lista |
+| Zanichelli (BookTab + Kitaboo) | email + password | toccare il libro nella lista |
+| HUB Scuola (Young + Kids) | email + password | toccare il libro nella lista |
+| MyLim (Loescher) | email + password | toccare il libro nella lista |
 | Hoepli demo | nessuno | URL della demo |
 
-## ⬇️ Scarica (Windows, niente Python)
+## ⬇️ Scarica (niente Python, niente terminale)
 
-**[Scarica ScaricaLibri.exe](https://github.com/antoniorasulo89/bsmart-downloader-gui/releases/latest/download/ScaricaLibri.exe)**
+| Sistema | Download |
+|---|---|
+| 🪟 Windows | **[ScaricaLibri-Windows.exe](https://github.com/antoniorasulo89/bsmart-downloader-gui/releases/latest/download/ScaricaLibri-Windows.exe)** |
+| 🐧 Linux | **[ScaricaLibri-Linux](https://github.com/antoniorasulo89/bsmart-downloader-gui/releases/latest/download/ScaricaLibri-Linux)** (poi `chmod +x ScaricaLibri-Linux`) |
+| 🍎 macOS | **[ScaricaLibri-macOS](https://github.com/antoniorasulo89/bsmart-downloader-gui/releases/latest/download/ScaricaLibri-macOS)** |
 
-Doppio click e via: scegli la piattaforma, accedi, scegli il libro, premi SCARICA.
-
-Spunta **Ricordami** per salvare email e password cifrate sul PC
-(solo il tuo utente Windows può leggerle): al prossimo avvio trovi già tutto compilato.
+Doppio click e via. Spunta **🔑 Ricordami** per non ridigitare più le credenziali
+(salvate cifrate: DPAPI su Windows, Keychain su macOS, Secret Service su Linux).
 
 ## Come ottenere token manuali (solo se il login con credenziali non va)
 
-- **HUB Young/Kids**: apri il libro nel lettore web, F12 → Rete, ricarica,
+- **HUB Scuola**: apri il libro nel lettore web, F12 → Rete, ricarica,
   clicca la richiesta con il Volume ID, copia `token-session`.
 - **MyLim**: su mylim.loescher.it fai login, F12 → Applicazione →
   Archiviazione locale → copia `token`.
@@ -32,18 +36,22 @@ Spunta **Ricordami** per salvare email e password cifrate sul PC
 
 ## Avvio da sorgente
 
-```bat
+```bash
 pip install -r requirements.txt
 python app_gui.py
 ```
 
-## Creare l'exe da soli
+## Creare l'eseguibile da soli
 
-Doppio click su `build_exe.bat` → `dist\ScaricaLibri.exe`.
+- Windows: doppio click su `build_exe.bat`
+- Linux/macOS: `pip install -r requirements.txt` poi il comando `pyinstaller …`
+  riportato in `.github/workflows/build.yml`
+- In automatico: ogni tag `v*` pushato su GitHub compila i 3 sistemi e allega
+  i file alla release.
 
 ## Test
 
-```bat
+```bash
 python test_all.py
 ```
 
