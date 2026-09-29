@@ -1,6 +1,6 @@
 # Smoke test — InfoComm Quiz
 
-Data: 2026-09-29T15:58:42Z · Casi: 12 · PASS: 11 · FAIL: 1
+Data: 2026-09-29T15:59:52Z · Casi: 12 · PASS: 12 · FAIL: 0
 
 | ID | Caso | Esito | Dettaglio |
 |---|---|---|---|
@@ -15,8 +15,4 @@ Data: 2026-09-29T15:58:42Z · Casi: 12 · PASS: 11 · FAIL: 1
 | C09 | app.js: solo studente + fix regressione | PASS | app.js: solo studente, fix append ok |
 | C09b | docente.js: pagina riservata completa | PASS | docente.js: link classe, registro, CSV ok |
 | D10 | Server locale: 7 asset 200 + contenuto | PASS | /index.html 200; /data/quiz.json 200; /guida-docente.html 200; /docente.html 200; /assets/app.js 200; /assets/docente.js 200; /assets/style.css 200 |
-| E11 | GitHub Pages live: home, guida, quiz.json | FAIL | HTTP Error 404: Not Found |
-
-## FAIL da correggere
-
-- E11: GitHub Pages live: home, guida, quiz.json: HTTP Error 404: Not Found
+| E11 | GitHub Pages live: home, guida, quiz.json | PASS | live: / 200; /guida-docente.html 200; /docente.html 200; /data/quiz.json 200 |
