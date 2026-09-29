@@ -191,6 +191,8 @@ class App(tk.Tk):
             if mod.NEEDS_LIST:
                 self._log("Carico i libri…")
                 self.books = mod.list_books(self.state)
+                for line in (self.state.get("_debug") or []):
+                    self._log(f"[diagnostica] {line}")
                 self._log(f"Trovati {len(self.books)} libri.")
                 self.after(0, self._filter_books)
                 self._set_status(f"Trovati {len(self.books)} libri. Scegli e scarica.", 0)

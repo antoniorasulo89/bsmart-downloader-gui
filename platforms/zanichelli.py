@@ -73,6 +73,10 @@ def login(creds):
         raise LoginError("Login riuscito ma sessione non ottenuta. Riprova.")
     full_cookie = cookie + "".join(
         f"; {c.name}={c.value}" for c in s.cookies if c.name != "token")
+    # inizializza la dashboard (richiesto per accedere alla lista libri)
+    u = s.get(f"{CATALOG}/dashboard/user", headers={"myz-token": myz}, timeout=20)
+    if u.status_code in (401, 403):
+        raise LoginError("Sessione non valida. Riprova il login.")
     return {"cookie": full_cookie, "myz": myz, "token": token}
 
 
@@ -89,6 +93,7 @@ def _add_licenses(books, licenses):
 
 def list_books(state):
     myz = state["myz"]
+    dbg = state.setdefault("_debug", [])
     books, page = {}, 1
     while True:
         r = requests.get(
@@ -96,11 +101,17 @@ def list_books(state):
             f"&searchString&pageNumber={page}&rows=100",
             headers=_h(myz=myz), timeout=20)
         if r.status_code == 403:
+            dbg.append(f"search pagina {page}: HTTP 403 (accesso negato)")
             break
         if not r.ok:
             raise RuntimeError(f"Elenco libri non disponibile (HTTP {r.status_code}).")
-        data = r.json().get("data", {})
-        _add_licenses(books, data.get("licenses"))
+        payload = r.json()
+        data = payload.get("data", {}) if isinstance(payload, dict) else {}
+        lic = data.get("licenses") or []
+        with_url = sum(1 for l in lic if (l.get("volume") or {}).get("ereader_url"))
+        dbg.append(f"search pagina {page}: {len(lic)} licenze, {with_url} con URL lettore; "
+                   f"chiavi data={sorted(data.keys())[:8]}")
+        _add_licenses(books, lic)
         pages = (data.get("pagination") or {}).get("pages", 0)
         if not pages or pages == page:
             break
@@ -108,9 +119,13 @@ def list_books(state):
     try:
         rl = requests.get(f"{CATALOG}/dashboard/licenses/real", headers=_h(myz=myz), timeout=20)
         if rl.ok:
-            _add_licenses(books, rl.json().get("realLicenses"))
-    except Exception:
-        pass
+            real = (rl.json().get("realLicenses") or [])
+            dbg.append(f"licenses/real: {len(real)} licenze")
+            _add_licenses(books, real)
+        else:
+            dbg.append(f"licenses/real: HTTP {rl.status_code}")
+    except Exception as e:
+        dbg.append(f"licenses/real: errore {e}")
     state["by_id"] = books
     return [{"id": k, "title": v["title"]} for k, v in books.items()]
 
