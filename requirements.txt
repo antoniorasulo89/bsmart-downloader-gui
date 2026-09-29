@@ -1,5 +1,6 @@
 requests
 pypdf
+pymupdf
 msgpack
 pycryptodome
 pyinstaller

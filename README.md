@@ -1,39 +1,51 @@
-# bSmart Downloader GUI
+# ScaricaLibri — downloader multi-piattaforma
 
-Interfaccia grafica facile per scaricare i tuoi libri bSmart / digibook24 come PDF offline.
-Basata su [Leone25/bSmart-downloader](https://github.com/Leone25/bSmart-downloader).
+Interfaccia grafica unica per scaricare i tuoi libri scolastici come PDF offline.
+Porting Python dei downloader di [Leone25](https://github.com/Leone25):
+
+| Piattaforma | Login | Cosa serve |
+|---|---|---|
+| bSmart / digibook24 | email + password | ID libro (dalla lista) |
+| Sanoma | email + password | gedi (dalla lista) |
+| Zanichelli (BookTab + Kitaboo) | email + password | ISBN (dalla lista) |
+| HUB Young / HUB Kids | token-session manuale | Volume ID dall'URL |
+| MyLim (Loescher) | token JWT manuale | ISBN (dalla lista) |
+| Hoepli demo | nessuno | URL della demo |
 
 ## ⬇️ Scarica (Windows, niente Python)
 
-**[Scarica bSmartDownloaderGUI.exe](https://github.com/antoniorasulo89/bsmart-downloader-gui/releases/latest/download/bSmartDownloaderGUI.exe)**
+**[Scarica ScaricaLibri.exe](https://github.com/antoniorasulo89/bsmart-downloader-gui/releases/latest/download/ScaricaLibri.exe)**
 
-Doppio click e via: inserisci email + password bSmart, scegli il libro, premi SCARICA PDF.
+Doppio click e via: scegli la piattaforma, accedi, scegli il libro, premi SCARICA.
 
-## Uso
+## Come ottenere token manuali
 
-1. Apri `bSmartDownloaderGUI.exe`
-2. Scegli il sito (bSmart o digibook24)
-3. Inserisci email e password del tuo account bSmart → **ACCEDI E CARICA I MIEI LIBRI**
-4. Seleziona il libro dalla lista (o scrivi l'ID a mano)
-5. Scegli la cartella → **SCARICA PDF**
-
-> **Login con Google / Microsoft / account editore?**
-> Usa il riquadro "Avanzato" con il cookie manuale `_bsw_session_v1_production`
-> (F12 → Archiviazione/Applicazione → Cookie → `my.bsmart.it`).
+- **HUB Young/Kids**: apri il libro nel lettore web, F12 → Rete, ricarica,
+  clicca la richiesta con il Volume ID, copia `token-session`.
+  Il Volume ID è il numero dopo `/viewer/` nell'URL.
+- **MyLim**: su mylim.loescher.it fai login, F12 → Applicazione →
+  Archiviazione locale → copia `token`.
+- **bSmart con Google/Microsoft**: F12 → Cookie → `_bsw_session_v1_production`
+  (campo facoltativo nella schermata bSmart).
 
 ## Avvio da sorgente
 
 ```bat
 pip install -r requirements.txt
-python bsmart_gui.py
+python app_gui.py
 ```
 
 ## Creare l'exe da soli
 
-Doppio click su `build_exe.bat` → trovi `dist\bSmartDownloaderGUI.exe`.
+Doppio click su `build_exe.bat` → `dist\ScaricaLibri.exe`.
+
+## Test
+
+```bat
+python test_all.py
+```
 
 ## Nota legale
 
-Usa il programma solo per backup personale dei libri che hai acquistato.
-Verifica la normativa del tuo paese. Crediti per la logica originale a
-[Leone25](https://github.com/Leone25/bSmart-downloader) (licenza MIT).
+Solo backup personale di libri acquistati. Verifica la normativa del tuo paese.
+Logica originale di [Leone25](https://github.com/Leone25) (licenza MIT).

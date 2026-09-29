@@ -1,9 +1,5 @@
 build/
+dist/
 __pycache__/
 *.pyc
 *.spec
-
-dist/
-cruscotto_scorte.html
-smoke_test.js
-smoke_test_report.md
