@@ -26,10 +26,11 @@
     <div id="modules" class="mods"></div>
     <h2>Come funziona</h2>
     <ul class="help">
-      <li><strong>Timer INVALSI:</strong> 12:00 minuti. Allo scadere il quiz si consegna da solo.</li>
+      <li><strong>Timer INVALSI:</strong> 12:00 minuti di default (il docente può cambiarlo). Allo scadere il quiz si consegna da solo.</li>
       <li><strong>Tipi:</strong> scelta multipla (4 opzioni) e Vero/Falso.</li>
       <li><strong>Sufficienza:</strong> almeno 6/10. Soluzioni con pagina del libro.</li>
       <li><strong>Progressi:</strong> salvati in locale nel browser, nessun account.</li>
+      <li><strong>Docente:</strong> area dedicata qui sotto per timer / n. domande, link per la classe ed export risultati.</li>
     </ul>
   </section>
 
@@ -46,6 +47,9 @@
       <div class="progress"><div id="q-bar"></div></div>
       <div id="q-list"></div>
       <div class="row">
+        <input id="student-name" class="nameinput" maxlength="60" placeholder="Nome e cognome (per la consegna al docente)" autocomplete="off">
+      </div>
+      <div class="row">
         <button id="btn-submit" class="primary">Consegna ora</button>
         <button id="btn-abort" class="ghost">Annulla</button>
       </div>
@@ -53,6 +57,26 @@
     </div>
   </section>
 </main>
+
+<section class="wrap">
+  <div class="card" id="teacher-card">
+    <h2>Area docente 👩‍🏫</h2>
+    <p class="muted small">Imposta <strong>minuti</strong> e <strong>n. domande</strong>, genera un <strong>link per la classe</strong> (es. 20 min, 15 domande). L'alunno apre il link, svolge il quiz e ti invia il <strong>risultato da copiare</strong>. Nessun server: la raccolta avviene via messaggi/export.</p>
+    <div class="tgrid">
+      <label>Quiz <select id="t-mod"></select></label>
+      <label>Minuti <input id="t-min" type="number" min="1" max="120" value="12"></label>
+      <label>N. domande <input id="t-n" type="number" min="1" max="10" value="10"></label>
+      <button id="t-link" class="primary">Genera link classe</button>
+    </div>
+    <div class="row"><input id="t-out" class="nameinput" readonly placeholder="Il link per la classe apparirà qui"></div>
+    <h3>Consegne registrate in questo browser</h3>
+    <div id="t-history" class="muted small">Nessuna consegna ancora.</div>
+    <div class="row">
+      <button id="t-csv">Scarica CSV consegne</button>
+      <button id="t-clear" class="ghost">Cancella consegne</button>
+    </div>
+  </div>
+</section>
 
 <footer class="wrap foot muted small">
   Contenuti didattici derivati da <em>InfoComm – Hoepli</em> (PDF in <code>dist/</code>, generati con <code>scripts/build_quiz_data.py</code>). Uso didattico personale.
