@@ -31,7 +31,7 @@ class App(ctk.CTk):
         self.title("ScaricaLibri 📚")
         self.geometry("780x860")
         self.minsize(680, 700)
-        self.state = None
+        self.session_state = None
         self.books = []
         self.selected_id = None
         self.platform_key = PLATFORMS[0]["key"]
@@ -225,7 +225,7 @@ class App(ctk.CTk):
         self.platform_key = key
         for k, b in self.plat_buttons.items():
             b.configure(fg_color=["#2CC985", "#2FA572"] if k == key else ["#3a3a3a", "#3a3a3a"])
-        self.state = None
+        self.session_state = None
         self.books = []
         self.selected_id = None
         self.dl_btn.configure(state="disabled")
@@ -315,7 +315,7 @@ class App(ctk.CTk):
     def _pick(self, book_id):
         self.selected_id = book_id
         self._highlight()
-        if self.state is not None or not self._entry()["mod"].NEEDS_LOGIN:
+        if self.session_state is not None or not self._entry()["mod"].NEEDS_LOGIN:
             self.dl_btn.configure(state="normal")
         self._set_status(f"✅ Libro scelto! Premi SCARICA PDF. 👇", None)
 
@@ -378,7 +378,7 @@ class App(ctk.CTk):
         self._set_status("🔑 Accesso in corso…", 0)
         self._log(f"[{e['label']}] login…")
         try:
-            self.state = mod.login(creds)
+            self.session_state = mod.login(creds)
             if self.vault and "password" in creds and creds.get("password"):
                 if self.remember_var.get():
                     self.vault.set_creds(e["key"], creds.get("email", ""), creds["password"])
@@ -387,8 +387,8 @@ class App(ctk.CTk):
             if mod.NEEDS_LIST:
                 self._set_status("📚 Cerco i tuoi libri…", 0)
                 self._log("Carico i libri…")
-                self.books = mod.list_books(self.state)
-                for line in (self.state.get("_debug") or []):
+                self.books = mod.list_books(self.session_state)
+                for line in (self.session_state.get("_debug") or []):
                     self._log(f"[diagnostica] {line}")
                 n = len(self.books)
                 self._log(f"Trovati {n} libri.")
@@ -397,7 +397,7 @@ class App(ctk.CTk):
                     self.dl_btn.configure(state="normal")
                 self._set_status(f"🎉 Trovati {n} libri! Tocca il tuo 👇", 0)
             else:
-                self.books = mod.list_books(self.state)
+                self.books = mod.list_books(self.session_state)
                 if self.books:
                     bid = self.books[0]["id"]
                     self.after(0, lambda: self._pick(bid))
@@ -416,10 +416,10 @@ class App(ctk.CTk):
     def _download(self):
         e = self._entry()
         mod = e["mod"]
-        if mod.NEEDS_LOGIN and not self.state:
+        if mod.NEEDS_LOGIN and not self.session_state:
             self._popup("Non connesso", "Prima premi ACCEDI al passo 2 🔓")
             return
-        state = self.state or mod.login({})
+        state = self.session_state or mod.login({})
         book_id = self.selected_id
         if not book_id:
             self._popup("Scegli un libro", "Tocca un libro nella lista 👆")

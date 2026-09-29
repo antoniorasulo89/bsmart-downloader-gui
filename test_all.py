@@ -331,6 +331,8 @@ def t_gui():
     app._pick("http://demo/x")
     assert app.selected_id == "http://demo/x"
     assert str(app.dl_btn.cget("state")) == "normal"
+    # regressione: self.state non deve coprire il metodo tkinter (crash CTk mainloop)
+    assert callable(app.state), "self.state copre tkinter.Widget.state!"
     app.destroy()
 
 check("gui build", t_gui)
