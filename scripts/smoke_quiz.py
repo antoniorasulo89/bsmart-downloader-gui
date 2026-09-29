@@ -41,8 +41,8 @@ t('A01', 'File statici presenti', lambda: ok(
 def load_quiz():
     return json.loads(read('docs/data/quiz.json'))
 
-t('B02', 'quiz.json: 10 moduli, 100 domande', lambda: (
-    lambda d: ok(len(d['modules']) == 10 and sum(len(m['questions']) for m in d['modules']) == 100,
+t('B02', 'quiz.json: 10 moduli, 400 domande', lambda: (
+    lambda d: ok(len(d['modules']) == 10 and sum(len(m['questions']) for m in d['modules']) == 400,
                  f"{len(d['modules'])} moduli, {sum(len(m['questions']) for m in d['modules'])} domande"))(load_quiz()))
 
 def check_schema():
@@ -50,7 +50,7 @@ def check_schema():
     ids = set()
     for m in d['modules']:
         assert set(m) >= {'id', 'title', 'book_pages', 'minutes', 'questions'}, f"modulo {m.get('id')} incompleto"
-        assert len(m['questions']) == 10, f"{m['id']}: {len(m['questions'])} domande"
+        assert len(m['questions']) == 40, f"{m['id']}: {len(m['questions'])} domande"
         for q in m['questions']:
             assert q['id'] not in ids, f"id duplicato {q['id']}"
             ids.add(q['id'])
@@ -64,7 +64,7 @@ def check_schema():
             else:
                 raise AssertionError(f"{q['id']}: tipo ignoto {q['type']}")
     ty = [q['type'] for m in d['modules'] for q in m['questions']]
-    return f"100 id unici, fonti ok; multiple={ty.count('multiple')}, V/F={ty.count('truefalse')}"
+    return f"400 id unici, fonti ok; multiple={ty.count('multiple')}, V/F={ty.count('truefalse')}"
 
 t('B03', 'quiz.json: schema, opzioni, fonti', check_schema)
 
@@ -82,10 +82,10 @@ def check_scoring():
                     s += 1
         return s
     all_ok = {q['id']: q['answer'] for q in m['questions']}
-    assert score(all_ok) == 10, 'tutto corretto deve dare 10'
+    assert score(all_ok) == len(m['questions']), 'tutto corretto deve dare il max'
     assert score({}) == 0, 'tutto vuoto deve dare 0'
-    assert score(all_ok) >= (d.get('pass_score', 6)), 'soglia non superata con 10/10'
-    return 'tutto-giusto=10/10 PROMOSSO, tutto-vuoto=0/10 bocciato'
+    assert score(all_ok) >= (d.get('pass_score', 6)), 'soglia non superata con tutto giusto'
+    return f"tutto-giusto={len(m['questions'])}/{len(m['questions'])} PROMOSSO, tutto-vuoto=0 bocciato"
 
 t('B04', 'Logica punteggio + soglia (specchio di app.js)', check_scoring)
 
@@ -113,11 +113,12 @@ t('C06', 'node --check app.js', lambda: (
 
 def check_index():
     h = read('docs/index.html')
-    for needle in ['id="modules"', 'id="q-timer"', 'id="q-list"', 'id="teacher-card"',
-                   'id="t-mod"', 'id="t-link"', 'id="t-history"', 'id="student-name"',
-                   'guida-docente.html', 'assets/app.js', '12 minuti']:
+    for needle in ['id="modules"', 'id="q-timer"', 'id="q-list"',
+                   'id="student-name"', 'guida-docente.html', 'assets/app.js', '12 minuti']:
         assert needle in h, f'manca {needle}'
-    return 'home: moduli, timer, quiz-box, area docente, link guida ok'
+    for banned in ['teacher-card', 't-mod', 't-link', 't-history', '"docente.html"']:
+        assert banned not in h, f'area docente visibile agli alunni: {banned}'
+    return 'home: solo quiz studente, area docente assente ok'
 
 t('C07', 'index.html: tutti i blocchi presenti', check_index)
 
@@ -131,13 +132,22 @@ t('C08', 'guida-docente.html: sezioni presenti', check_guide)
 
 def check_appjs():
     j = read('docs/assets/app.js')
-    for needle in ['startQuiz', 'submit', 'genLink', 'downloadCSV', 'renderTeacher',
-                   'consegna automatica', 'localStorage', '?mod=']:
+    for needle in ['startQuiz', 'submit', 'consegna automatica', 'localStorage', '?mod=']:
         assert needle in j, f'manca {needle}'
     assert 'list.appendChild(d)' in j, 'manca append domande (regressione fix)'
-    return 'app.js: quiz, docente, export, fix append ok'
+    for banned in ['renderTeacher', 'genLink', 'downloadCSV', 't-mod']:
+        assert banned not in j, f'codice docente rimasto in app.js: {banned}'
+    return 'app.js: solo studente, fix append ok'
 
-t('C09', 'app.js: funzioni docente + fix regressione', check_appjs)
+t('C09', 'app.js: solo studente + fix regressione', check_appjs)
+
+def check_docentejs():
+    j = read('docs/assets/docente.js')
+    for needle in ['genLink', 'downloadCSV', 'renderHistory', 'index.html', 't-n']:
+        assert needle in j, f'manca {needle}'
+    return 'docente.js: link classe, registro, CSV ok'
+
+t('C09b', 'docente.js: pagina riservata completa', check_docentejs)
 
 # ---------- D. Server locale ----------
 def serve_and_check():
@@ -152,7 +162,9 @@ def serve_and_check():
         for path, needle in [('/index.html', 'InfoComm Quiz'),
                              ('/data/quiz.json', '"modules"'),
                              ('/guida-docente.html', 'Guida docente'),
+                             ('/docente.html', 'Area docente'),
                              ('/assets/app.js', 'startQuiz'),
+                             ('/assets/docente.js', 'genLink'),
                              ('/assets/style.css', '.timer')]:
             st, body = get(f'http://127.0.0.1:18765{path}')
             assert st == 200, f'{path}: status {st}'
@@ -162,13 +174,14 @@ def serve_and_check():
     finally:
         srv.shutdown()
 
-t('D10', 'Server locale: 5 asset 200 + contenuto', serve_and_check)
+t('D10', 'Server locale: 7 asset 200 + contenuto', serve_and_check)
 
 # ---------- E. Sito live Pages ----------
 def check_live():
     out = []
     for path, needle in [('/', 'InfoComm Quiz'),
                          ('/guida-docente.html', 'Guida docente'),
+                         ('/docente.html', 'Area docente'),
                          ('/data/quiz.json', '"modules"')]:
         st, body = get(LIVE + path)
         assert st == 200, f'{path}: status {st}'

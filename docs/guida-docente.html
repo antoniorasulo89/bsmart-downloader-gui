@@ -18,7 +18,7 @@ table.ref th,table.ref td{border:1px solid var(--line);padding:6px 10px;text-ali
 <header class="topbar"><div class="wrap">
   <div><h1>Guida docente <span class="badge">InfoComm Quiz · stile INVALSI</span></h1>
   <p class="sub">Piattaforma gratuita su GitHub Pages · 10 quiz dai capitoli del libro InfoComm Hoepli · nessun account, nessun dato online.</p></div>
-  <div class="top-actions"><a href="index.html"><button>← Torna ai quiz</button></a> <button onclick="window.print()">🖨 Stampa</button></div>
+  <div class="top-actions"><a href="docente.html"><button>👩‍🏫 Area docente</button></a> <a href="index.html"><button>← Torna ai quiz</button></a> <button onclick="window.print()">🖨 Stampa</button></div>
 </div></header>
 
 <main class="wrap"><div class="card guide">
@@ -32,8 +32,8 @@ table.ref th,table.ref td{border:1px solid var(--line);padding:6px 10px;text-ali
 
 <h2>2. Creare il link per la classe</h2>
 <div class="step"><ol>
-<li>In fondo alla home page apri l'<strong>Area docente</strong>.</li>
-<li>Scegli <strong>quiz</strong> (capitolo), <strong>minuti</strong> e <strong>n. domande</strong> (default: 10 domande in 12 minuti, soglia 6/10).</li>
+<li>Apri la <strong>pagina riservata docente</strong> (<a href="docente.html">docente.html</a>): <strong>non condividerla con gli alunni</strong>, a loro manda solo i link dei quiz.</li>
+<li>Scegli <strong>quiz</strong> (banca dati: 40 domande per modulo), <strong>minuti</strong> e <strong>n. domande</strong> (default: 10 domande in 12 minuti, soglia 6/10).</li>
 <li>Clicca <strong>Genera link classe</strong>: il link viene copiato, condividilo (registro, Classroom, WhatsApp, QR in aula).</li>
 <li>Chi apre il link trova il quiz già impostato: <em>«5 domande in 20 min (link classe)»</em>, con domande e opzioni mescolate.</li>
 </ol></div>
@@ -73,7 +73,7 @@ table.ref th,table.ref td{border:1px solid var(--line);padding:6px 10px;text-ali
 <ul>
 <li><strong>Il link dà 404:</strong> Pages non ancora attivo o deploy in corso (attendi 2 min e ricarica).</li>
 <li><strong>Il timer non parte / pagina bianca:</strong> connessione assente al primo caricamento o browser obsoleto (serve un browser aggiornato).</li>
-<li><strong>Domande «strane»:</strong> la banca dati (<code>docs/data/quiz.json</code>, 100 domande) è generata dal PDF con <code>scripts/build_quiz_data.py</code>: segnala l'ID domanda (es. <code>a4-q03</code>) per correggerla nel file.</li>
+<li><strong>Domande «strane»:</strong> la banca dati (<code>docs/data/quiz.json</code>, 400 domande) è generata dal PDF con <code>scripts/build_quiz_data.py</code>: segnala l'ID domanda (es. <code>a4-q03</code>) per correggerla nel file.</li>
 <li><strong>Studente senza nome in consegna:</strong> il campo nome è facoltativo; ricordagli di compilarlo prima di consegnare.</li>
 </ul>
 

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScortaLab — Cruscotto scorte SIA</title>
+<style>
+/* Hallmark · pre-emit critique: P5 H4 E5 S4 R5 V5 · Macrostructure: Stat-Led + Workbench · Theme: Sunset Boulevard (offline) · Genre: editorial-didattico */
+:root{
+  --paper:#fdf8ef;
+  --card:#fffdf7;
+  --ink:#264653;
+  --ink-soft:#4a6570;
+  --accent:#e76f51;
+  --accent-2:#f4a261;
+  --sand:#e9c46a;
+  --line:#e5d9c3;
+  --ok:#0f6b3e;
+  --ok-bg:#e3f2e7;
+  --ko:#b3261e;
+  --ko-bg:#fde7e2;
+  --warn:#7a5c00;
+  --warn-bg:#fff4cf;
+  --focus:#264653;
+  --font-display:"DejaVu Serif",Georgia,"Times New Roman",serif;
+  --font-body:"DejaVu Sans",Verdana,system-ui,sans-serif;
+  --font-mono:"DejaVu Sans Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{overflow-x:clip}
+body{margin:0;font-family:var(--font-body);background:var(--paper);color:var(--ink);line-height:1.55}
+.brand-band{height:8px;background:linear-gradient(90deg,var(--accent) 0 40%,var(--accent-2) 40% 70%,var(--sand) 70% 100%)}
+header.top{background:var(--ink);color:#fdf8ef;padding:1.1rem 1rem 1.25rem}
+.top-inner{max-width:1000px;margin:0 auto;display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.logo{width:52px;height:52px;flex:0 0 52px;border-radius:12px;background:var(--sand);display:flex;align-items:center;justify-content:center}
+.top h1{font-family:var(--font-display);margin:0;font-size:1.45rem;line-height:1.15;overflow-wrap:anywhere;min-width:0}
+.top .sub{margin:.3rem 0 0;font-size:.95rem;color:#f3e7c8}
+.top code{background:rgba(255,255,255,.14);padding:.1rem .45rem;border-radius:5px;font-family:var(--font-mono);font-size:.85em}
+.pill{display:inline-block;background:var(--accent);color:#fff;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:.2rem .7rem;margin-bottom:.4rem}
+main{max-width:1000px;margin:0 auto;padding:1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(38,70,83,.08),0 4px 16px rgba(231,111,81,.07)}
+h2{font-family:var(--font-display);margin:0 0 .5rem;font-size:1.2rem;font-style:normal}
+.rule-box{background:var(--warn-bg);border:1px dashed var(--accent-2);border-radius:10px;padding:.6rem .8rem;margin:.6rem 0;font-size:.95rem}
+.rule-box strong{font-family:var(--font-mono)}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:2px solid var(--accent);border-radius:10px;padding:.65rem 1.1rem;font-size:1rem;font-weight:700;cursor:pointer}
+.btn:hover{background:#cf5c40;border-color:#cf5c40}
+.btn:focus-visible,a:focus-visible,input:focus-visible,button:focus-visible,.table-wrap:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+#fileInfo{display:block;margin-top:.5rem;color:var(--ink-soft)}
+.kpi{display:flex;gap:.75rem;flex-wrap:wrap;margin:.85rem 0 0}
+.kpi div{flex:1 1 140px;border:1px solid var(--line);border-top:5px solid var(--sand);border-radius:10px;padding:.55rem .8rem;background:#fff}
+.kpi div.alert{border-top-color:var(--accent)}
+.kpi div.good{border-top-color:var(--ink)}
+.kpi span.lbl{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft)}
+.kpi strong{font-family:var(--font-display);font-size:1.5rem}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+table{border-collapse:collapse;width:100%;min-width:780px;font-size:.92rem}
+th,td{border-bottom:1px solid var(--line);padding:.55rem;text-align:left;vertical-align:top}
+thead th{background:var(--ink);color:#fdf8ef;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+td.num,th.num{text-align:right}
+tbody tr.need{border-left:5px solid var(--accent)}
+tbody tr.fine{border-left:5px solid var(--ink)}
+tbody tr.invalid{background:#f1ece1;border-left:5px solid #8a8a8a}
+input[type=number]{width:5.5rem;padding:.4rem;font-size:1rem;font-family:var(--font-mono);border:1.5px solid var(--ink-soft);border-radius:8px;background:#fff;color:var(--ink)}
+.orig{display:block;font-size:.75rem;color:var(--ink-soft)}
+.badge{display:inline-block;padding:.2rem .65rem;border-radius:999px;font-weight:700;font-size:.82rem;white-space:nowrap}
+.riordina{background:var(--accent);color:#fff;border:1px solid var(--accent)}
+.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok)}
+.nonvalida{background:#e8e4da;color:#3d3d3d;border:1px solid #6b6b6b}
+.calc{font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap;background:#fff7e8;border:1px solid var(--line);border-radius:6px;padding:.15rem .45rem}
+.err-box{background:var(--warn-bg);border:1px solid var(--warn);border-radius:10px;padding:.6rem;margin-top:.6rem}
+.limits{background:#fff7e0;border:1px solid var(--sand);border-left:6px solid var(--accent)}
+.reset-btn{background:#fff;color:var(--ink);border:1.5px solid var(--ink);border-radius:8px;padding:.32rem .65rem;cursor:pointer;font-size:.85rem;font-weight:700}
+.reset-btn:hover{background:var(--ink);color:#fff}
+footer{font-size:.85rem;color:var(--ink-soft);padding:0 1rem 2rem;max-width:1000px;margin:0 auto}
+@media (max-width:600px){.top h1{font-size:1.2rem}th,td{padding:.45rem}.kpi div{flex:1 1 45%}}
+</style>
+</head>
+<body>
+<div class="brand-band" aria-hidden="true"></div>
+<header class="top">
+  <div class="top-inner">
+    <span class="logo" aria-hidden="true">
+      <svg width="34" height="34" viewBox="0 0 34 34" role="img" aria-label="ScortaLab: scaffale con soglia di riordino">
+        <rect x="4" y="5" width="26" height="24" rx="2" fill="none" stroke="#264653" stroke-width="2.5"/>
+        <line x1="4" y1="13" x2="30" y2="13" stroke="#264653" stroke-width="2"/>
+        <line x1="4" y1="21" x2="30" y2="21" stroke="#264653" stroke-width="2"/>
+        <rect x="7" y="8" width="6" height="5" fill="#e76f51"/>
+        <rect x="16" y="16" width="6" height="5" fill="#e76f51"/>
+        <line x1="4" y1="25.5" x2="30" y2="25.5" stroke="#e76f51" stroke-width="2" stroke-dasharray="3 2"/>
+      </svg>
+    </span>
+    <div>
+      <span class="pill">SIA · Quarta superiore · Stockly-inspired</span>
+      <h1>ScortaLab — dai dati alla decisione</h1>
+      <p class="sub">Cruscotto didattico scorte · offline, nessun account, nessun invio dati.<br>
+      Regola: <code>punto = consumo × giorni + sicurezza</code> · riordina se <code>scorta ≤ punto</code>.</p>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="card" aria-labelledby="h-import">
+    <h2 id="h-import">1. Importa il CSV dal tuo computer</h2>
+    <p>Separatore <strong>punto e virgola (;)</strong>, intestazione:<br>
+    <code>codice;prodotto;scorta_attuale;consumo_medio_giornaliero;giorni_consegna;scorta_sicurezza</code></p>
+    <div class="rule-box" role="note">Come in Stockly: prima i <strong>KPI di allerta</strong>, sotto il dettaglio per prodotto con calcolo espanso e frase-spiegazione.</div>
+    <label class="btn" for="fileInput">Seleziona CSV locale</label>
+    <input type="file" id="fileInput" accept=".csv,text/csv" style="position:absolute;left:-9999px" aria-describedby="fileInfo">
+    <span id="fileInfo" role="status" aria-live="polite">Nessun file caricato.</span>
+    <div class="kpi" aria-live="polite">
+      <div><span class="lbl">Prodotti validi</span><strong id="kTot">0</strong></div>
+      <div class="alert"><span class="lbl">Da riordinare</span><strong id="kKo">0</strong></div>
+      <div class="good"><span class="lbl">Scorta OK</span><strong id="kOk">0</strong></div>
+      <div><span class="lbl">Righe scartate</span><strong id="kErr">0</strong></div>
+    </div>
+    <div id="globalErrors" class="err-box" hidden></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-ris">
+    <h2 id="h-ris">2. Prodotti, calcolo e decisione</h2>
+    <p><strong>Scorta attuale</strong> e <strong>Giorni consegna</strong> sono modificabili per simulare scenari senza toccare il CSV. L'originale resta sotto in piccolo; <strong>Ripristina</strong> lo recupera.</p>
+    <div class="table-wrap" tabindex="0" aria-label="Tabella prodotti, area scorrevole">
+      <table id="tab">
+        <thead>
+          <tr>
+            <th scope="col">Codice / Prodotto</th>
+            <th scope="col" class="num">Scorta attuale</th>
+            <th scope="col" class="num">Consumo /gg</th>
+            <th scope="col" class="num">Giorni consegna</th>
+            <th scope="col" class="num">Sicurezza</th>
+            <th scope="col">Punto di riordino</th>
+            <th scope="col">Decisione</th>
+            <th scope="col">Spiegazione</th>
+            <th scope="col">Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="9">Carica un file CSV per vedere i risultati.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card limits" aria-labelledby="h-lim">
+    <h2 id="h-lim">3. Limiti della regola (leggere prima di decidere)</h2>
+    <ul>
+      <li>Media costante: ignora picchi, stagionalità e tendenze.</li>
+      <li>Tempi di consegna fissi: ignora ritardi del fornitore.</li>
+      <li>Scorta di sicurezza data, non calcolata statisticamente.</li>
+      <li>Ignora costi d'ordine, giacenza, lotti minimi, sconti, obsolescenza.</li>
+      <li>Regola deterministica didattica: non è previsione della domanda né IA.</li>
+    </ul>
+  </section>
+</main>
+<footer>
+  <p>Tema Sunset Boulevard: Burnt Orange #e76f51 · Coral #f4a261 · Warm Sand #e9c46a · Deep #264653. Obiettivo di apprendimento: passare dai dati a una decisione motivata. Funzione del tool: solo calcolo trasparente e validazione.</p>
+</footer>
+
+<script>
+"use strict";
+var HEAD = ["codice","prodotto","scorta_attuale","consumo_medio_giornaliero","giorni_consegna","scorta_sicurezza"];
+var NUMF = ["scorta_attuale","consumo_medio_giornaliero","giorni_consegna","scorta_sicurezza"];
+var rows = [];
+
+var fileInput = document.getElementById("fileInput");
+var fileInfo = document.getElementById("fileInfo");
+var tbody = document.getElementById("tbody");
+var gErr = document.getElementById("globalErrors");
+
+document.querySelector('label[for="fileInput"]').addEventListener("keydown", function(e){
+  if(e.key==="Enter"||e.key===" "){e.preventDefault();fileInput.click();}
+});
+fileInput.addEventListener("change", function(){
+  if(fileInput.files && fileInput.files[0]) readFile(fileInput.files[0]);
+});
+
+function readFile(f){
+  var r = new FileReader();
+  r.onload = function(){ parseCSV(String(r.result||""), f.name); };
+  r.onerror = function(){ fileInfo.textContent = "Errore di lettura del file."; };
+  r.readAsText(f, "UTF-8");
+}
+
+function toNum(s){
+  if(s===undefined||s===null) return {ok:false,reason:"campo mancante"};
+  s = String(s).trim().replace(/\uFEFF/g,"");
+  if(s==="") return {ok:false,reason:"campo mancante"};
+  s = s.replace(/\s/g,"").replace(",",".");
+  if(!/^[-+]?\d+(\.\d+)?$/.test(s)) return {ok:false,reason:'valore non numerico "'+s+'"'};
+  var v = Number(s);
+  if(!isFinite(v)) return {ok:false,reason:'valore non numerico "'+s+'"'};
+  if(v<0) return {ok:false,reason:"valore negativo ("+v+") non ammesso"};
+  return {ok:true,value:v};
+}
+
+function parseCSV(text, name){
+  rows = [];
+  tbody.innerHTML = "";
+  gErr.hidden = true; gErr.innerHTML = "";
+  var lines = text.replace(/\r\n/g,"\n").replace(/\r/g,"\n").split("\n").filter(function(l){return l.trim()!=="";});
+  if(lines.length===0){ fileInfo.textContent = "File vuoto: " + name; updateKpi(); return; }
+  var head = lines[0].split(";").map(function(h){return h.trim().replace(/^\uFEFF/,"").toLowerCase();});
+  var headOk = head.length===HEAD.length && HEAD.every(function(h,i){return head[i]===h;});
+  if(!headOk){
+    if(lines[0].indexOf(";")===-1){
+      gErr.hidden=false;
+      gErr.innerHTML="<strong>Separatore non valido.</strong> Usa il punto e virgola (;). Intestazione trovata: "+escapeHtml(lines[0]);
+    } else {
+      gErr.hidden=false;
+      gErr.innerHTML="<strong>Intestazione non valida.</strong> Attesa: "+HEAD.join(";")+"<br>Trovata: "+escapeHtml(lines[0]);
+    }
+    fileInfo.textContent = "File: " + name + " — intestazione non valida.";
+    tbody.innerHTML = '<tr><td colspan="9">Intestazione non valida: nessuna decisione calcolata.</td></tr>';
+    updateKpi();
+    return;
+  }
+  var errs = [];
+  for(var i=1;i<lines.length;i++){
+    var cols = lines[i].split(";");
+    if(cols.length!==6){ errs.push("Riga "+(i+1)+": attese 6 colonne, trovate "+cols.length+" — riga scartata."); continue; }
+    var rec = {linea:i+1, codice:cols[0].trim(), prodotto:cols[1].trim(), raw:{scorta:cols[2],consumo:cols[3],giorni:cols[4],sicurezza:cols[5]}, errors:[]};
+    if(!rec.codice) rec.errors.push("codice mancante");
+    if(!rec.prodotto) rec.errors.push("prodotto mancante");
+    var v = {
+      scorta: toNum(cols[2]),
+      consumo: toNum(cols[3]),
+      giorni: toNum(cols[4]),
+      sicurezza: toNum(cols[5])
+    };
+    if(!v.scorta.ok) rec.errors.push("scorta_attuale: "+v.scorta.reason);
+    if(!v.consumo.ok) rec.errors.push("consumo_medio_giornaliero: "+v.consumo.reason);
+    if(!v.giorni.ok) rec.errors.push("giorni_consegna: "+v.giorni.reason);
+    if(!v.sicurezza.ok) rec.errors.push("scorta_sicurezza: "+v.sicurezza.reason);
+    if(v.scorta.ok) rec.scorta=v.scorta.value;
+    if(v.consumo.ok) rec.consumo=v.consumo.value;
+    if(v.giorni.ok) rec.giorni=v.giorni.value;
+    if(v.sicurezza.ok) rec.sicurezza=v.sicurezza.value;
+    rec.valid = rec.errors.length===0;
+    rec.simScorta = rec.valid ? rec.scorta : null;
+    rec.simGiorni = rec.valid ? rec.giorni : null;
+    rows.push(rec);
+    if(!rec.valid) errs.push("Riga "+(i+1)+" ("+(rec.codice||"?")+"): "+rec.errors.join("; ")+".");
+  }
+  fileInfo.textContent = "File: " + name + " — " + rows.filter(function(r){return r.valid;}).length + " righe valide, " + errs.length + " scartate.";
+  if(errs.length){ gErr.hidden=false; gErr.innerHTML="<strong>Righe scartate / errori:</strong><br>"+errs.map(escapeHtml).join("<br>"); }
+  render();
+}
+
+function render(){
+  tbody.innerHTML = "";
+  if(rows.length===0){ tbody.innerHTML='<tr><td colspan="9">Nessun dato.</td></tr>'; updateKpi(); return; }
+  rows.forEach(function(r, idx){
+    if(!r.valid){
+      var tr = document.createElement("tr");
+      tr.className="invalid";
+      tr.innerHTML =
+        "<td><strong>"+escapeHtml(r.codice||"—")+"</strong><br>"+escapeHtml(r.prodotto||"—")+"<br><small>riga "+r.linea+"</small></td>"+
+        "<td class='num'>—</td><td class='num'>"+escapeHtml(r.raw.consumo)+"</td><td class='num'>"+escapeHtml(r.raw.giorni)+"</td><td class='num'>"+escapeHtml(r.raw.sicurezza)+"</td>"+
+        "<td>—</td>"+
+        '<td><span class="badge nonvalida">DATI NON VALIDI</span></td>'+
+        "<td>Riga non valida ("+escapeHtml(r.errors.join("; "))+") quindi nessuna decisione calcolata.</td><td>—</td>";
+      tbody.appendChild(tr);
+      return;
+    }
+    var simErr = [];
+    if(r.simScorta===null||r.simScorta===""||!isFinite(Number(r.simScorta))||Number(r.simScorta)<0) simErr.push("scorta simulata non valida");
+    if(r.simGiorni===null||r.simGiorni===""||!isFinite(Number(r.simGiorni))||Number(r.simGiorni)<0) simErr.push("giorni simulati non validi");
+    var tr2 = document.createElement("tr");
+    if(simErr.length){
+      tr2.className="invalid";
+      tr2.appendChild(cellHtml("<strong>"+escapeHtml(r.codice)+"</strong><br>"+escapeHtml(r.prodotto)));
+      tr2.appendChild(cellInput(idx,"scorta",r.simScorta,r.scorta));
+      tr2.appendChild(cellNum(fmt(r.consumo)));
+      tr2.appendChild(cellInput(idx,"giorni",r.simGiorni,r.giorni));
+      tr2.appendChild(cellNum(fmt(r.sicurezza)));
+      tr2.appendChild(cellHtml("—"));
+      tr2.appendChild(cellHtml('<span class="badge nonvalida">DATI NON VALIDI</span>'));
+      tr2.appendChild(cellHtml("Simulazione non valida ("+simErr.join(", ")+") quindi nessuna decisione calcolata."));
+      tr2.appendChild(cellReset(idx));
+    } else {
+      var s = Number(r.simScorta), g = Number(r.simGiorni);
+      var p = r.consumo * g + r.sicurezza;
+      var need = s <= p;
+      tr2.className = need ? "need" : "fine";
+      var frase = need
+        ? "La scorta ("+fmt(s)+") è minore o uguale al punto di riordino ("+fmt(p)+") quindi bisogna riordinare."
+        : "La scorta ("+fmt(s)+") è sopra il punto di riordino ("+fmt(p)+") quindi non serve riordinare ora.";
+      tr2.appendChild(cellHtml("<strong>"+escapeHtml(r.codice)+"</strong><br>"+escapeHtml(r.prodotto)));
+      tr2.appendChild(cellInput(idx,"scorta",s,r.scorta));
+      tr2.appendChild(cellNum(fmt(r.consumo)));
+      tr2.appendChild(cellInput(idx,"giorni",g,r.giorni));
+      tr2.appendChild(cellNum(fmt(r.sicurezza)));
+      tr2.appendChild(cellHtml('<span class="calc">'+fmt(r.consumo)+" × "+fmt(g)+" + "+fmt(r.sicurezza)+" = <strong>"+fmt(p)+"</strong></span>"));
+      tr2.appendChild(cellHtml(need?'<span class="badge riordina">RIORDINARE</span>':'<span class="badge ok">SCORTA OK</span>'));
+      tr2.appendChild(cellHtml(escapeHtml(frase)));
+      tr2.appendChild(cellReset(idx));
+    }
+    tbody.appendChild(tr2);
+  });
+  updateKpi();
+}
+
+function cellHtml(h){ var td=document.createElement("td"); td.innerHTML=h; return td; }
+function cellNum(t){ var td=document.createElement("td"); td.className="num"; td.textContent=t; return td; }
+function cellInput(idx, kind, val, orig){
+  var td=document.createElement("td"); td.className="num";
+  var inp=document.createElement("input");
+  inp.type="number"; inp.min="0"; inp.step="any"; inp.value=val;
+  inp.setAttribute("aria-label",(kind==="scorta"?"Scorta attuale ":"Giorni consegna ")+rows[idx].codice+" (originale "+orig+")");
+  inp.dataset.idx=idx; inp.dataset.kind=kind;
+  inp.addEventListener("input", function(){
+    var v = inp.value===""?NaN:Number(inp.value);
+    if(kind==="scorta") rows[idx].simScorta = inp.value===""?"":v;
+    else rows[idx].simGiorni = inp.value===""?"":v;
+    renderKeepFocus(inp);
+  });
+  td.appendChild(inp);
+  var sp=document.createElement("span"); sp.className="orig"; sp.textContent="orig: "+orig;
+  td.appendChild(sp);
+  return td;
+}
+function cellReset(idx){
+  var td=document.createElement("td");
+  var b=document.createElement("button"); b.className="reset-btn"; b.textContent="Ripristina";
+  b.setAttribute("aria-label","Ripristina valori originali "+rows[idx].codice);
+  b.addEventListener("click", function(){ rows[idx].simScorta=rows[idx].scorta; rows[idx].simGiorni=rows[idx].giorni; render(); });
+  td.appendChild(b);
+  return td;
+}
+
+var focusSel=null;
+function renderKeepFocus(el){
+  focusSel = {idx:el.dataset.idx, kind:el.dataset.kind};
+  render();
+  var q = 'input[data-idx="'+focusSel.idx+'"][data-kind="'+focusSel.kind+'"]';
+  var n = tbody.querySelector(q);
+  if(n){ n.focus(); try{n.setSelectionRange(n.value.length,n.value.length);}catch(e){} }
+}
+
+function updateKpi(){
+  var tot=0,ko=0,ok=0,err=0;
+  rows.forEach(function(r){
+    if(!r.valid){err++;return;}
+    if(r.simScorta===""||r.simGiorni===""||!isFinite(Number(r.simScorta))||!isFinite(Number(r.simGiorni))||Number(r.simScorta)<0||Number(r.simGiorni)<0){err++;return;}
+    tot++;
+    var p = r.consumo*Number(r.simGiorni)+r.sicurezza;
+    if(Number(r.simScorta)<=p) ko++; else ok++;
+  });
+  document.getElementById("kTot").textContent=tot;
+  document.getElementById("kKo").textContent=ko;
+  document.getElementById("kOk").textContent=ok;
+  document.getElementById("kErr").textContent=err;
+}
+
+function fmt(n){ return (Math.round(n*100)/100).toString().replace(".",","); }
+function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+</script>
+</body>
+</html>

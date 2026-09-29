@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Area docente · InfoComm Quiz</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/style.css?v=4">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <div><h1>Area docente <span class="badge">riservata</span></h1>
+  <p class="sub">Questa pagina è solo per i docenti: <strong>non condividerla con gli alunni</strong> (a loro invia solo i link dei quiz). Banca dati: 40 domande per modulo.</p></div>
+  <div class="top-actions"><a href="guida-docente.html"><button>📖 Guida</button></a></div>
+</div></header>
+
+<main class="wrap">
+  <div class="card">
+    <h2>1. Link per la classe</h2>
+    <div class="tgrid">
+      <label>Quiz <select id="t-mod"></select></label>
+      <label>Minuti <input id="t-min" type="number" min="1" max="120" value="12"></label>
+      <label>N. domande (max 40) <input id="t-n" type="number" min="1" max="40" value="10"></label>
+      <button id="t-link" class="primary">Genera link classe</button>
+    </div>
+    <div class="row"><input id="t-out" class="nameinput" readonly placeholder="Il link per la classe apparirà qui"></div>
+    <p class="muted small" id="t-hint"></p>
+  </div>
+
+  <div class="card">
+    <h2>2. Consegne registrate in questo browser</h2>
+    <div id="t-history" class="muted small">Caricamento…</div>
+    <div class="row">
+      <button id="t-csv">Scarica CSV consegne</button>
+      <button id="t-clear" class="ghost">Cancella consegne</button>
+    </div>
+    <p class="muted small">⚠ Solo i quiz svolti su questo dispositivo. In laboratorio usa «Scarica CSV» su ogni PC, oppure raccogli i testi di consegna inviati dagli alunni.</p>
+  </div>
+</main>
+<footer class="wrap foot muted small"><a href="index.html">Quiz alunni</a> · <a href="guida-docente.html">Guida docente</a></footer>
+<script src="assets/docente.js?v=1"></script>
+</body>
+</html>

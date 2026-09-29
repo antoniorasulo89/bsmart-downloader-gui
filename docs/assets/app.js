@@ -27,13 +27,9 @@ async function init() {
     return;
   }
   renderModules();
-  renderTeacher();
   $('btn-submit').onclick = () => submit(false);
   $('btn-abort').onclick = abort;
   $('btn-reset').onclick = () => { if (confirm('Cancellare tutti i progressi salvati?')) { localStorage.removeItem(LS_KEY); renderModules(); } };
-  $('t-link').onclick = genLink;
-  $('t-csv').onclick = downloadCSV;
-  $('t-clear').onclick = () => { if (confirm('Cancellare tutte le consegne registrate?')) { saveH([]); renderTeacher(); } };
   // Link classe ?mod=a4&min=20&n=8 → avvio diretto con quelle impostazioni
   const pm = params.get('mod');
   if (pm && DATA.modules.some(m => m.id === pm)) {
@@ -186,7 +182,6 @@ function submit(auto) {
   $('q-prog').textContent = 'Quiz consegnato.';
   $('q-timer').textContent = '00:00';
   renderModules();
-  renderTeacher();
 }
 
 function abort() {
@@ -195,41 +190,6 @@ function abort() {
   clearInterval(tickId); cur = null;
   $('quiz-box').hidden = true; $('quiz-home').hidden = false;
   renderModules();
-}
-
-/* ---- Area docente ---- */
-function renderTeacher() {
-  const sel = $('t-mod');
-  if (!sel.options.length) DATA.modules.forEach(m => { const o = document.createElement('option'); o.value = m.id; o.textContent = m.title; sel.appendChild(o); });
-  const h = loadH();
-  const box = $('t-history');
-  if (!h.length) { box.innerHTML = 'Nessuna consegna ancora.'; return; }
-  box.innerHTML = `<table><tr><th>Data</th><th>Quiz</th><th>Alunno</th><th>Punti</th><th>Tempo</th><th>Esito</th></tr>${h.slice(0, 50).map(r =>
-    `<tr><td>${r.when}</td><td>${r.module}</td><td>${(r.name || '—').replace(/</g, '&lt;')}</td><td>${r.score}/${r.total}</td><td>${r.min}'</td><td>${r.pass ? '✅' : '❌'}</td></tr>`).join('')}</table>`
-    + (h.length > 50 ? `<div class="small">…e altre ${h.length - 50} (vedi CSV).</div>` : '');
-}
-
-function genLink() {
-  const m = DATA.modules.find(x => x.id === $('t-mod').value);
-  const min = clamp($('t-min').value, 1, 120, 12);
-  const n = clamp($('t-n').value, 1, m.questions.length, m.questions.length);
-  const url = `${location.origin}${location.pathname}?mod=${m.id}&min=${min}&n=${n}`;
-  const out = $('t-out');
-  out.value = url;
-  out.select();
-  try { navigator.clipboard.writeText(url); } catch {}
-}
-
-function downloadCSV() {
-  const h = loadH();
-  if (!h.length) { alert('Nessuna consegna da esportare.'); return; }
-  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const csv = 'data;quiz;alunno;punteggio;totale;minuti;esito\n' + h.map(r => [r.when, q(r.module), q(r.name), r.score, r.total, r.min, r.pass ? 'promosso' : 'non sufficiente'].join(';')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
-  a.download = 'infocomm-consegne.csv';
-  a.click();
-  URL.revokeObjectURL(a.href);
 }
 
 init();
