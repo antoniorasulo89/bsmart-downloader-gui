@@ -18,8 +18,14 @@ function fmt(ms) {
 }
 
 async function init() {
-  const res = await fetch('data/quiz.json');
-  DATA = await res.json();
+  try {
+    const res = await fetch('data/quiz.json');
+    if (!res.ok) throw new Error('quiz.json: HTTP ' + res.status);
+    DATA = await res.json();
+  } catch (e) {
+    $('modules').innerHTML = '<div class="muted">⚠ Dati quiz non caricati (' + String(e.message || e).replace(/</g, '&lt;') + '). Controlla la connessione e ricarica la pagina (Ctrl+F5).</div>';
+    return;
+  }
   renderModules();
   renderTeacher();
   $('btn-submit').onclick = () => submit(false);
