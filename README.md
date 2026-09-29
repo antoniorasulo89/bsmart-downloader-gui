@@ -8,8 +8,8 @@ Porting Python dei downloader di [Leone25](https://github.com/Leone25):
 | bSmart / digibook24 | email + password | ID libro (dalla lista) |
 | Sanoma | email + password | gedi (dalla lista) |
 | Zanichelli (BookTab + Kitaboo) | email + password | ISBN (dalla lista) |
-| HUB Young / HUB Kids | token-session manuale | Volume ID dall'URL |
-| MyLim (Loescher) | token JWT manuale | ISBN (dalla lista) |
+| HUB Young / HUB Kids | email + password | ID volume (dalla lista) |
+| MyLim (Loescher) | email + password | ISBN (dalla lista) |
 | Hoepli demo | nessuno | URL della demo |
 
 ## ⬇️ Scarica (Windows, niente Python)
@@ -18,11 +18,10 @@ Porting Python dei downloader di [Leone25](https://github.com/Leone25):
 
 Doppio click e via: scegli la piattaforma, accedi, scegli il libro, premi SCARICA.
 
-## Come ottenere token manuali
+## Come ottenere token manuali (solo se il login con credenziali non va)
 
 - **HUB Young/Kids**: apri il libro nel lettore web, F12 → Rete, ricarica,
   clicca la richiesta con il Volume ID, copia `token-session`.
-  Il Volume ID è il numero dopo `/viewer/` nell'URL.
 - **MyLim**: su mylim.loescher.it fai login, F12 → Applicazione →
   Archiviazione locale → copia `token`.
 - **bSmart con Google/Microsoft**: F12 → Cookie → `_bsw_session_v1_production`

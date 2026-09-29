@@ -14,6 +14,7 @@ import fitz
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from platforms import PLATFORMS
+import xml.etree.ElementTree as ET
 from platforms import bsmart, mylim, hub, hoepli, sanoma, zanichelli
 from platforms.common import LoginError
 
@@ -93,13 +94,30 @@ def t_zani_spine():
     spine_xml = """<response><spine><unit btbid="U1" features="html"/><unit btbid="U2" features="flash"/>
       <unit btbid="U3"/></spine><config><volume><settings><volumetitle>Libro Test</volumetitle>
       </settings></volume></config></response>"""
-    root = zanichelli._xml(spine_xml)
-    assert root.find("spine") is not None
-    units = [u.attrib.get("btbid") for u in root.find("spine").findall("unit")
-             if u.attrib.get("features") != "flash"]
+    root = ET.fromstring(spine_xml)
+    units = [u.attrib["btbid"] for u in root.iter("unit")
+             if u.attrib.get("btbid") and u.attrib.get("features") != "flash"]
     assert units == ["U1", "U3"], units
+    vt = root.find(".//volumetitle")
+    assert vt is not None and vt.text == "Libro Test"
 
 check("zanichelli parsing spine", t_zani_spine)
+
+
+def t_zani_helpers():
+    # unpad valido / non valido
+    assert zanichelli._unpad(b"ABC" + bytes([2]) * 2) == b"ABC"
+    assert zanichelli._unpad(b"ABC\x05\x06") == b"ABC\x05\x06"
+    # manifest nei due formati
+    m = {"imagesP1svgz": ("a.svgz", "image/svg+xml"), "images/P2.png": ("b.png", "image/png")}
+    assert zanichelli._pick_manifest(m, "P1") == ("a.svgz", "image/svg+xml")
+    assert zanichelli._pick_manifest(m, "P2") == ("b.png", "image/png")
+    assert zanichelli._pick_manifest(m, "PX") is None
+    # fragment del reader con token contenente '+'
+    bid, tok = zanichelli._grab_params("https://webreader.zanichelli.it/#/reader?bookID=AB12&usertoken=a+b/c=")
+    assert bid == "AB12" and tok == "a+b/c=", (bid, tok)
+
+check("zanichelli helpers", t_zani_helpers)
 
 
 # 4. hub: db sintetico + zip + merge
@@ -176,6 +194,10 @@ class FakeResp:
     def text(self):
         return self.content.decode("utf-8", "replace")
 
+    @property
+    def ok(self):
+        return self.status_code < 400
+
     def json(self):
         return self._payload
 
@@ -187,22 +209,72 @@ class FakeResp:
 def t_mylim():
     sommari = [{"opera": {"isbn": "978-1", "nome": "Libro Uno", "autore": "Aut",
                           "copertina": "http://x/y.jpg"}, "tipologia": "b"}]
-    pdf_bytes = fitz.open().new_page(width=50, height=50) and None  # placeholder
     buf = io.BytesIO()
     dd = fitz.open()
     dd.new_page(width=50, height=50)
     dd.save(buf)
-    with patch("platforms.mylim.requests.get") as g:
+    with patch("platforms.mylim.requests.post") as post, \
+         patch("platforms.mylim.requests.get") as g:
+        post.return_value = FakeResp(payload={"token": "TOK"}, content=b'{"token":"TOK"}')
         g.side_effect = [FakeResp(payload=sommari),
                          FakeResp(payload={"url": "http://x/libro.pdf"}),
                          FakeResp(content=buf.getvalue())]
-        st = mylim.login({"token": "TOK"})
+        st = mylim.login({"email": "a@b.it", "password": "x", "token": ""})
+        assert st["token"] == "TOK"
         books = mylim.list_books(st)
         assert books == [{"id": "978-1", "title": "Libro Uno — Aut"}], books
         out = mylim.download(st, "978-1", tempfile.mkdtemp(), {}, lambda *a: None)
         assert os.path.exists(out) and os.path.getsize(out) > 100, out
 
 check("mylim mock", t_mylim)
+
+
+def t_hub():
+    # pdf di test
+    buf = io.BytesIO()
+    dd = fitz.open()
+    dd.new_page(width=50, height=50)
+    dd.save(buf)
+    pdf_bytes = buf.getvalue()
+    # db con un capitolo
+    tmp = tempfile.mkdtemp()
+    dbp = os.path.join(tmp, "p.db")
+    db = sqlite3.connect(dbp)
+    db.execute("CREATE TABLE offline_tbl (offline_path TEXT, offline_value TEXT)")
+    db.execute("INSERT INTO offline_tbl VALUES (?, ?)",
+               ("meyoung/publication/7", json.dumps(
+                   {"indexContents": {"chapters": [{"chapterId": "c1"}]}})))
+    db.commit()
+    db.close()
+    pack = io.BytesIO()
+    with zipfile.ZipFile(pack, "w") as zh:
+        with open(dbp, "rb") as fh:
+            zh.writestr("publication/publication.db", fh.read())
+    chap = io.BytesIO()
+    with zipfile.ZipFile(chap, "w") as zh:
+        zh.writestr("c1/p1.pdf", pdf_bytes)
+
+    import platforms.hub as hubmod
+    with patch.object(hubmod.requests, "get") as g, \
+         patch.object(hubmod.requests, "post") as post:
+        g.side_effect = [
+            FakeResp(payload={"result": "OK", "data": {"username": "a@b.it",
+                      "sessionId": "S", "hubEncryptedUser": "J"}}),  # loginJsonp
+            FakeResp(payload=[{"id": 7, "title": "Volume Sette"}]),  # getLibrary (login? no: list)
+            FakeResp(payload=[{"id": 7, "title": "Volume Sette"}]),  # getLibrary (title lookup)
+            FakeResp(content=pack.getvalue()),  # publication.zip
+            FakeResp(content=chap.getvalue()),  # chapter zip
+        ]
+        post.return_value = FakeResp(payload={"tokenId": "TOK"})
+        st = hubmod.login({"_site": "young", "email": "a@b.it", "password": "x", "token": ""})
+        assert st == {"platform": "young", "token": "TOK"}, st
+        books = hubmod.list_books(st)
+        assert books == [{"id": "7", "title": "Volume Sette"}], books
+        out = hubmod.download(st, "7", tempfile.mkdtemp(), {}, lambda *a: None)
+        d = fitz.open(out)
+        assert d.page_count == 1, d.page_count
+
+check("hub mock", t_hub)
 
 
 # 7. hoepli con rete mockata

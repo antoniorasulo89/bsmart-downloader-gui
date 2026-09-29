@@ -1,21 +1,20 @@
-"""MyLim / Loescher (porting di Leone25/mylim-downloader).
+"""MyLim / Loescher (rif. Leone25/mylim-downloader + bundle ufficiale mylim).
 
-Il token JWT si copia dal localStorage di mylim.loescher.it
-(F12 → Applicazione → Archiviazione locale → token).
+Login con email+password (api-token-auth) oppure token JWT manuale.
 """
 import os
 
 import requests
 
-from .common import sanitize, UA_SIMPLE
+from .common import LoginError, sanitize, UA_SIMPLE
 
 LABEL = "MyLim (Loescher)"
-AUTH_FIELDS = [("token", "Token JWT (da localStorage di mylim.loescher.it)", False, True)]
-AUTH_HELP = (
-    "1. Apri mylim.loescher.it nel browser e fai login\n"
-    "2. Premi F12 → Applicazione → Archiviazione locale → https://mylim.loescher.it\n"
-    "3. Copia il valore di 'token' e incollalo qui"
-)
+AUTH_FIELDS = [
+    ("email", "Email account MyLim", False, True),
+    ("password", "Password", True, True),
+    ("token", "Token JWT manuale (solo se il login non va)", False, False),
+]
+AUTH_HELP = "Accedi con email e password del tuo account MyLim/Loescher."
 ID_LABEL = "ISBN"
 ID_HELP = "Codice ISBN del volume, oppure selezionalo dalla lista."
 OPTIONS = []
@@ -25,26 +24,51 @@ NEEDS_LOGIN = True
 NEEDS_LIST = True
 
 
-def login(creds):
-    token = creds["token"].strip().strip('"')
-    # verifica subito il token
-    r = requests.get(f"{API}/book/sommari/", headers={**UA_SIMPLE, "Authorization": "JWT " + token}, timeout=20)
+def _check_token(token):
+    r = requests.get(f"{API}/book/sommari/",
+                     headers={**UA_SIMPLE, "Authorization": "JWT " + token}, timeout=20)
     if r.status_code in (401, 403):
-        from .common import LoginError
-        raise LoginError("Token non valido o scaduto. Ricopialo da mylim.loescher.it.")
+        return None
     r.raise_for_status()
-    return {"token": token, "sommari": r.json()}
+    return r.json()
+
+
+def login(creds):
+    token = (creds.get("token") or "").strip().strip('"')
+    if not token:
+        email, password = creds["email"].strip(), creds["password"]
+        r = requests.post(
+            "https://loeda.loescher.it/loescher/api/v2/api-token-auth/",
+            json={"username": email, "password": password, "app": "mylim"},
+            headers=UA_SIMPLE, timeout=20,
+        )
+        if r.status_code in (400, 401, 403):
+            raise LoginError("Email e/o password non corretti.")
+        if not r.ok:
+            raise LoginError(f"Login non riuscito (HTTP {r.status_code}).")
+        data = r.json() if r.content else {}
+        for field in ("token", "token_loescher", "access", "jwt", "key"):
+            if data.get(field):
+                token = data[field]
+                break
+        if not token:
+            raise LoginError("Login riuscito ma token non trovato: incolla il token JWT manuale.")
+    sommari = _check_token(token)
+    if sommari is None:
+        raise LoginError("Token non valido o scaduto.")
+    return {"token": token, "sommari": sommari}
 
 
 def list_books(state):
     books = []
     for b in state.get("sommari") or []:
         opera = b.get("opera", {})
-        books.append({
-            "id": str(opera.get("isbn", "")),
-            "title": f"{opera.get('nome', '?')} — {opera.get('autore', '')}".strip(),
-        })
-    return [b for b in books if b["id"]]
+        if opera.get("isbn"):
+            books.append({
+                "id": str(opera["isbn"]),
+                "title": f"{opera.get('nome', '?')} — {opera.get('autore', '')}".strip(),
+            })
+    return books
 
 
 def download(state, book_id, out_dir, options, progress):
@@ -57,9 +81,8 @@ def download(state, book_id, out_dir, options, progress):
     if not url:
         raise RuntimeError("Il server non ha fornito il link al PDF.")
     progress(0, 1, "Scarico il PDF…")
-    r = requests.get(url, headers=UA_SIMPLE, timeout=60)
+    r = requests.get(url, headers=UA_SIMPLE, timeout=300)
     r.raise_for_status()
-    # titolo dalla lista se disponibile
     title = isbn
     for b in state.get("sommari") or []:
         if str(b.get("opera", {}).get("isbn")) == isbn:
