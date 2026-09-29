@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guida docente · InfoComm Quiz</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+@media print{ .topbar .top-actions,.noprint{display:none} body{background:#fff} .card{border:1px solid #999} }
+.guide h2{margin-top:1.2em} .guide ol li,.guide ul li{margin:.4em 0}
+.step{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:10px 14px;margin:10px 0}
+.warnbox{background:#FEFCE8;border:1px solid #FDE68A;border-radius:10px;padding:10px 14px;margin:10px 0}
+table.ref{border-collapse:collapse;width:100%;font-size:.9rem;background:#fff}
+table.ref th,table.ref td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <div><h1>Guida docente <span class="badge">InfoComm Quiz · stile INVALSI</span></h1>
+  <p class="sub">Piattaforma gratuita su GitHub Pages · 10 quiz dai capitoli del libro InfoComm Hoepli · nessun account, nessun dato online.</p></div>
+  <div class="top-actions"><a href="index.html"><button>← Torna ai quiz</button></a> <button onclick="window.print()">🖨 Stampa</button></div>
+</div></header>
+
+<main class="wrap"><div class="card guide">
+
+<h2>1. Prima volta: attivare il sito (una sola volta)</h2>
+<div class="step"><ol>
+<li>Apri <code>github.com/antoniorasulo89/bsmart-downloader-gui/settings/pages</code> e accedi.</li>
+<li><strong>Branch:</strong> seleziona <code>master</code> · cartella: <code>/docs</code> · <strong>Save</strong>.</li>
+<li>Attendi 1–2 minuti: il sito è live su <code>https://antoniorasulo89.github.io/bsmart-downloader-gui/</code>.</li>
+</ol></div>
+
+<h2>2. Creare il link per la classe</h2>
+<div class="step"><ol>
+<li>In fondo alla home page apri l'<strong>Area docente</strong>.</li>
+<li>Scegli <strong>quiz</strong> (capitolo), <strong>minuti</strong> e <strong>n. domande</strong> (default: 10 domande in 12 minuti, soglia 6/10).</li>
+<li>Clicca <strong>Genera link classe</strong>: il link viene copiato, condividilo (registro, Classroom, WhatsApp, QR in aula).</li>
+<li>Chi apre il link trova il quiz già impostato: <em>«5 domande in 20 min (link classe)»</em>, con domande e opzioni mescolate.</li>
+</ol></div>
+
+<h2>3. Tempi consigliati</h2>
+<table class="ref">
+<tr><th>Uso</th><th>Domande</th><th>Minuti</th><th>Esempio link</th></tr>
+<tr><td>Esercitazione veloce</td><td>5</td><td>8</td><td><code>?mod=a1&amp;min=8&amp;n=5</code></td></tr>
+<tr><td>Verifica standard (default)</td><td>10</td><td>12</td><td><code>?mod=a4&amp;min=12&amp;n=10</code></td></tr>
+<tr><td>Simulazione esame</td><td>10</td><td>20</td><td><code>?mod=b1&amp;min=20&amp;n=10</code></td></tr>
+</table>
+
+<h2>4. Raccogliere i risultati</h2>
+<div class="step"><ol>
+<li>L'alunno scrive <strong>nome e cognome</strong> nel campo sopra «Consegna ora» e consegna (allo scadere è <strong>automatica</strong>).</li>
+<li>Appare il riquadro <strong>📋 Consegna al docente</strong>: l'alunno lo copia con un clic e te lo invia (messaggio, email, chat di classe).</li>
+<li>Formato della consegna: <code>InfoComm Quiz | A4 · Reti… | Alunno: Mario Rossi | Punteggio: 8/10 (PROMOSSO) | 12 min, 10 dom. | data, ora</code>.</li>
+<li>Le soluzioni con <strong>pagina del libro</strong> restano visibili all'alunno per il ripasso.</li>
+</ol></div>
+<div class="warnbox"><strong>⚠ Importante:</strong> la tabella «Consegne registrate in questo browser» mostra <strong>solo i quiz svolti su quel dispositivo/browser</strong> (i dati non lasciano mai il browser, non c'è un server centrale). In laboratorio ogni PC ha il suo registro: usa <strong>Scarica CSV consegne</strong> su ciascun PC e unisci i file, oppure raccogli i testi di consegna inviati dagli alunni.</div>
+
+<h2>5. Valutazione e ripasso</h2>
+<ul>
+<li><strong>Soglia:</strong> 6/10 (PROMOSSO). Modificabile? No dal pannello: è fissa nel file <code>docs/data/quiz.json</code> (<code>pass_score</code>).</li>
+<li><strong>Ripetizione:</strong> domande e opzioni si mescolano a ogni avvio: far ripetere il quiz è un ripasso efficace.</li>
+<li><strong>Recupero:</strong> ogni errore rimanda alla <strong>pagina del libro</strong> (es. «InfoComm, pag. 150»).</li>
+<li><strong>CSV:</strong> apribile in Excel/LibreOffice (separatore <code>;</code>) per medie e tabelloni.</li>
+</ul>
+
+<h2>6. Privacy</h2>
+<ul>
+<li>Nessun account, nessun tracciamento, nessun invio in rete: punteggio e nome restano nel <strong>browser locale</strong> finché l'alunno non li condivide.</li>
+<li>«Azzera progressi» e «Cancella consegne» eliminano tutto dal dispositivo: usali a fine anno o su PC condivisi.</li>
+</ul>
+
+<h2>7. Problemi frequenti</h2>
+<ul>
+<li><strong>Il link dà 404:</strong> Pages non ancora attivo o deploy in corso (attendi 2 min e ricarica).</li>
+<li><strong>Il timer non parte / pagina bianca:</strong> connessione assente al primo caricamento o browser obsoleto (serve un browser aggiornato).</li>
+<li><strong>Domande «strane»:</strong> la banca dati (<code>docs/data/quiz.json</code>, 100 domande) è generata dal PDF con <code>scripts/build_quiz_data.py</code>: segnala l'ID domanda (es. <code>a4-q03</code>) per correggerla nel file.</li>
+<li><strong>Studente senza nome in consegna:</strong> il campo nome è facoltativo; ricordagli di compilarlo prima di consegnare.</li>
+</ul>
+
+<p class="muted small noprint">Banca dati: <a href="data/quiz.json">quiz.json</a> · Rigenerazione: <code>python scripts/build_quiz_data.py</code> dalla root del repo.</p>
+</div></main>
+<footer class="wrap foot muted small"><a href="index.html">← Torna ai quiz</a></footer>
+</body>
+</html>
