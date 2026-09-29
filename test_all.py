@@ -339,6 +339,25 @@ def t_vault():
 check("vault roundtrip", t_vault)
 
 
+def t_context_menu():
+    import app_gui
+    app = app_gui.App()
+    assert app.bind_all("<Button-3>"), "binding tasto destro mancante"
+    # incolla via clipboard nel campo email
+    app.plat_box.current(0)
+    app._render_auth()
+    entry = app.auth_widgets["email"]
+    entry.focus_force()
+    app.clipboard_clear()
+    app.clipboard_append("test@incolla.it")
+    entry.event_generate("<<Paste>>")
+    app.update_idletasks()
+    assert entry.get() == "test@incolla.it", repr(entry.get())
+    app.destroy()
+
+check("menu tasto destro", t_context_menu)
+
+
 print()
 if fails:
     print("FALLITI:", fails)

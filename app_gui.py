@@ -26,6 +26,7 @@ class App(tk.Tk):
         self.state = None
         self.books = []
         self.auth_vars = {}
+        self.auth_widgets = {}
         self.opt_vars = {}
         self._build()
 
@@ -83,7 +84,51 @@ class App(tk.Tk):
 
         self.log = tk.Text(self, height=7, state="disabled")
         self.log.pack(fill="both", expand=False, **pad)
+        self._add_context_menu()
         self._render_auth()
+
+    def _add_context_menu(self):
+        """Menu tasto destro (copia/incolla) per tutti i campi di testo."""
+        self._ctx_menu = tk.Menu(self, tearoff=0)
+        self._ctx_menu.add_command(label="Taglia", command=lambda: self._ctx_action("<<Cut>>"))
+        self._ctx_menu.add_command(label="Copia", command=lambda: self._ctx_action("<<Copy>>"))
+        self._ctx_menu.add_command(label="Incolla", command=lambda: self._ctx_action("<<Paste>>"))
+        self._ctx_menu.add_separator()
+        self._ctx_menu.add_command(label="Seleziona tutto",
+                                   command=lambda: self._ctx_action("<<SelectAll>>"))
+        self.bind_all("<Button-3>", self._show_context_menu, add="+")
+
+    def _ctx_target(self):
+        w = self.focus_get()
+        if isinstance(w, (tk.Entry, ttk.Entry, tk.Text)):
+            try:
+                if str(w.cget("state")) in ("disabled",):
+                    return None
+            except tk.TclError:
+                pass
+            return w
+        return None
+
+    def _ctx_action(self, ev):
+        w = self._ctx_target()
+        if w is not None:
+            try:
+                w.event_generate(ev)
+            except tk.TclError:
+                pass
+
+    def _show_context_menu(self, event):
+        w = event.widget
+        if not isinstance(w, (tk.Entry, ttk.Entry, tk.Text)):
+            return
+        try:
+            w.focus_set()
+        except tk.TclError:
+            return
+        try:
+            self._ctx_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self._ctx_menu.grab_release()
 
     def _entry(self):
         return BY_KEY[[k for k, p in BY_KEY.items() if p["label"] == self.plat_var.get()][0]]
@@ -92,6 +137,7 @@ class App(tk.Tk):
         for w in self.auth_frame.winfo_children():
             w.destroy()
         self.auth_vars = {}
+        self.auth_widgets = {}
         e = self._entry()
         mod = e["mod"]
         if not mod.NEEDS_LOGIN:
@@ -106,9 +152,11 @@ class App(tk.Tk):
             ttk.Label(self.auth_frame, text=label + ("" if req else " (facoltativo)") + ":").pack(
                 anchor="w", padx=6)
             var = tk.StringVar()
-            ttk.Entry(self.auth_frame, textvariable=var, width=50,
-                      show="•" if is_pw else "").pack(fill="x", padx=6, pady=2)
+            ent = ttk.Entry(self.auth_frame, textvariable=var, width=50,
+                            show="•" if is_pw else "")
+            ent.pack(fill="x", padx=6, pady=2)
             self.auth_vars[key] = var
+            self.auth_widgets[key] = ent
         self.remember_var = tk.BooleanVar(value=False)
         saved = _vault.get_creds(e["key"]) if VAULT_OK else {}
         if saved:
