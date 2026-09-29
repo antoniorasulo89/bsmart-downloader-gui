@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InfoComm Quiz · stile INVALSI</title>
+<meta name="description" content="Piattaforma di quiz stile INVALSI dal libro InfoComm (Hoepli). 10 capitoli, timer, punteggio.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <div>
+      <h1>InfoComm Quiz <span class="badge">stile INVALSI</span></h1>
+      <p class="sub">Dal libro <em>InfoComm Hoepli</em> (Servizi commerciali / Web Community). 10 quiz per capitoli · 10 domande · <strong>12 minuti</strong> ciascuno · consegna automatica allo scadere.</p>
+    </div>
+    <div class="top-actions">
+      <button id="btn-reset" class="ghost" title="Cancella i risultati salvati in questo browser">Azzera progressi</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap grid">
+  <section class="card">
+    <h2>1. Scegli il capitolo</h2>
+    <div id="modules" class="mods"></div>
+    <h2>Come funziona</h2>
+    <ul class="help">
+      <li><strong>Timer INVALSI:</strong> 12:00 minuti. Allo scadere il quiz si consegna da solo.</li>
+      <li><strong>Tipi:</strong> scelta multipla (4 opzioni) e Vero/Falso.</li>
+      <li><strong>Sufficienza:</strong> almeno 6/10. Soluzioni con pagina del libro.</li>
+      <li><strong>Progressi:</strong> salvati in locale nel browser, nessun account.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="quiz-card">
+    <div id="quiz-home" class="muted">Seleziona un capitolo a sinistra per iniziare. Hai 12 minuti dal via.</div>
+    <div id="quiz-box" hidden>
+      <div class="quiz-head">
+        <div>
+          <div id="q-title" class="q-title"></div>
+          <div id="q-prog" class="muted small"></div>
+        </div>
+        <div id="q-timer" class="timer" aria-live="polite">12:00</div>
+      </div>
+      <div class="progress"><div id="q-bar"></div></div>
+      <div id="q-list"></div>
+      <div class="row">
+        <button id="btn-submit" class="primary">Consegna ora</button>
+        <button id="btn-abort" class="ghost">Annulla</button>
+      </div>
+      <div id="q-result"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot muted small">
+  Contenuti didattici derivati da <em>InfoComm – Hoepli</em> (PDF in <code>dist/</code>, generati con <code>scripts/build_quiz_data.py</code>). Uso didattico personale.
+  · <a href="data/quiz.json">quiz.json</a>
+</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

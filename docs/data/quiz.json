@@ -1,0 +1,1238 @@
+{
+ "app": "InfoComm Quiz · stile INVALSI",
+ "source_pdf": "20315 - InfoComm.pdf",
+ "minutes_per_quiz": 12,
+ "pass_score": 6,
+ "modules": [
+  {
+   "id": "a1",
+   "title": "A1 · Azienda e sistemi informativi",
+   "book_pages": [
+    2,
+    44
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "a1-q01",
+     "type": "multiple",
+     "q": "Secondo il libro, ogni attività svolta in azienda deve essere…",
+     "options": [
+      "improvvisata giorno per giorno",
+      "programmata con obiettivi, decisioni, modalità e risorse",
+      "delegata interamente all'esterno",
+      "svolta senza controllo"
+     ],
+     "answer": 1,
+     "source": "InfoComm, pag. 17"
+    },
+    {
+     "id": "a1-q02",
+     "type": "multiple",
+     "q": "Il sistema informativo aziendale è…",
+     "options": [
+      "l'insieme organizzato di informazioni e procedure per gestire l'azienda",
+      "solo il software di contabilità",
+      "solo i computer dell'ufficio",
+      "la rete internet pubblica"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 18"
+    },
+    {
+     "id": "a1-q03",
+     "type": "multiple",
+     "q": "Il sistema informatico rispetto al sistema informativo è…",
+     "options": [
+      "la stessa cosa",
+      "la componente automatizzata (hardware+software) del sistema informativo",
+      "solo la carta stampata",
+      "un obbligo fiscale"
+     ],
+     "answer": 1,
+     "source": "InfoComm, pag. 20"
+    },
+    {
+     "id": "a1-q04",
+     "type": "multiple",
+     "q": "ERP (Enterprise Resource Planning) indica…",
+     "options": [
+      "un social network",
+      "un sistema integrato che unifica i processi aziendali (contabilità, magazzino, vendite…)",
+      "un antivirus",
+      "un formato video"
+     ],
+     "answer": 1,
+     "source": "InfoComm, pag. 30"
+    },
+    {
+     "id": "a1-q05",
+     "type": "multiple",
+     "q": "Il passaggio a un sistema informativo integrato serve a…",
+     "options": [
+      "evitare dati duplicati e avere informazioni coerenti tra reparti",
+      "aumentare la carta stampata",
+      "rallentare il lavoro",
+      "eliminare i backup"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 45"
+    },
+    {
+     "id": "a1-q06",
+     "type": "multiple",
+     "q": "La customer satisfaction si verifica anche con…",
+     "options": [
+      "brevi questionari online agli utenti",
+      "il lancio di una moneta",
+      "l'oroscopo",
+      "il passaparola incontrollato"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 45"
+    },
+    {
+     "id": "a1-q07",
+     "type": "multiple",
+     "q": "Il Codice ATECO serve a…",
+     "options": [
+      "classificare le attività economiche dell'azienda",
+      "criptare le password",
+      "comprimere i video",
+      "formattare l'hard disk"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 11"
+    },
+    {
+     "id": "a1-q08",
+     "type": "truefalse",
+     "q": "Il sistema informativo coincide sempre con il sistema informatico.",
+     "answer": false,
+     "source": "InfoComm, pag. 20"
+    },
+    {
+     "id": "a1-q09",
+     "type": "truefalse",
+     "q": "Un ERP integra in un unico database i dati dei vari reparti aziendali.",
+     "answer": true,
+     "source": "InfoComm, pag. 30"
+    },
+    {
+     "id": "a1-q10",
+     "type": "truefalse",
+     "q": "Programmare le attività aziendali significa fissare in anticipo obiettivi e risorse.",
+     "answer": true,
+     "source": "InfoComm, pag. 17"
+    }
+   ]
+  },
+  {
+   "id": "a2",
+   "title": "A2 · E-commerce e comunicazione digitale",
+   "book_pages": [
+    46,
+    99
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "a2-q01",
+     "type": "multiple",
+     "q": "Un sito vetrina è…",
+     "options": [
+      "un sito che presenta l'azienda senza vendere online",
+      "un negozio fisico",
+      "un virus",
+      "un foglio Excel"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 100"
+    },
+    {
+     "id": "a2-q02",
+     "type": "multiple",
+     "q": "L'e-commerce indica…",
+     "options": [
+      "la vendita di beni/servizi tramite internet",
+      "la posta cartacea",
+      "la TV analogica",
+      "il passaparola in piazza"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 50"
+    },
+    {
+     "id": "a2-q03",
+     "type": "multiple",
+     "q": "Il Web 3.0 / web semantico punta a…",
+     "options": [
+      "contenuti comprensibili anche alle macchine, più personalizzati",
+      "spegnere internet",
+      "solo pagine stampate",
+      "niente motori di ricerca"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 75"
+    },
+    {
+     "id": "a2-q04",
+     "type": "multiple",
+     "q": "I social network per un'azienda sono utili per…",
+     "options": [
+      "comunicare, promuovere e gestire la relazione col cliente",
+      "nascondere i prodotti",
+      "evitare i clienti",
+      "sostituire la contabilità"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 75"
+    },
+    {
+     "id": "a2-q05",
+     "type": "multiple",
+     "q": "Una newsletter aziendale efficace deve…",
+     "options": [
+      "essere mirata, sintetica e con call-to-action chiara",
+      "essere lunghissima e generica",
+      "contenere solo allegati pesanti",
+      "essere inviata senza consenso"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 60"
+    },
+    {
+     "id": "a2-q06",
+     "type": "multiple",
+     "q": "La comunicazione aziendale sul web deve…",
+     "options": [
+      "curare immagine, coerenza e reputazione",
+      "copiare contenuti altrui senza citarli",
+      "ignorare i commenti",
+      "pubblicare password"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 60"
+    },
+    {
+     "id": "a2-q07",
+     "type": "multiple",
+     "q": "Il carrello elettronico serve a…",
+     "options": [
+      "raccogliere i prodotti scelti prima del pagamento",
+      "contare i dipendenti",
+      "misurare il traffico web",
+      "archiviare le fatture"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 50"
+    },
+    {
+     "id": "a2-q08",
+     "type": "truefalse",
+     "q": "Vendere online non richiede alcuna gestione di pagamenti e spedizioni.",
+     "answer": false,
+     "source": "InfoComm, pag. 50"
+    },
+    {
+     "id": "a2-q09",
+     "type": "truefalse",
+     "q": "Il sito web aziendale svolge anche una funzione pubblicitaria e comunicativa.",
+     "answer": true,
+     "source": "InfoComm, pag. 100"
+    },
+    {
+     "id": "a2-q10",
+     "type": "truefalse",
+     "q": "I social vanno gestiti con un piano editoriale e non a caso.",
+     "answer": true,
+     "source": "InfoComm, pag. 75"
+    }
+   ]
+  },
+  {
+   "id": "a3",
+   "title": "A3 · Marketing web, social e analytics",
+   "book_pages": [
+    100,
+    149
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "a3-q01",
+     "type": "multiple",
+     "q": "La web analytics è…",
+     "options": [
+      "l'analisi dei dati di navigazione per migliorare sito e marketing",
+      "la grafica del logo",
+      "la stampa dei volantini",
+      "la crittografia"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 125"
+    },
+    {
+     "id": "a3-q02",
+     "type": "multiple",
+     "q": "Metriche classiche di web analytics sono…",
+     "options": [
+      "visite, visitatori unici, bounce rate, conversioni",
+      "solo il numero di dipendenti",
+      "solo il fatturato cartaceo",
+      "temperatura e umidità"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 125"
+    },
+    {
+     "id": "a3-q03",
+     "type": "multiple",
+     "q": "Il marketing virale…",
+     "options": [
+      "diffonde il messaggio tramite condivisioni spontanee degli utenti",
+      "è un virus informatico",
+      "è vietato per legge sempre",
+      "riguarda solo la TV"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 137"
+    },
+    {
+     "id": "a3-q04",
+     "type": "multiple",
+     "q": "Una GIF animata per un prodotto si può realizzare con…",
+     "options": [
+      "strumenti online come Imgflip, con uso consapevole",
+      "solo con la stampante",
+      "senza immagini",
+      "senza rispettare licenze"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 137"
+    },
+    {
+     "id": "a3-q05",
+     "type": "multiple",
+     "q": "Il diritto d'autore in rete tutela…",
+     "options": [
+      "opere creative: testi, immagini, musica, video",
+      "le password personali",
+      "i cavi di rete",
+      "i prezzi dei concorrenti"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 140"
+    },
+    {
+     "id": "a3-q06",
+     "type": "multiple",
+     "q": "Prima di usare un'immagine trovata online bisogna…",
+     "options": [
+      "verificarne licenza e diritti di utilizzo",
+      "usarla sempre liberamente",
+      "cancellarne l'autore",
+      "rivenderla"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 140"
+    },
+    {
+     "id": "a3-q07",
+     "type": "multiple",
+     "q": "Le fasi di un processo di web analytics includono…",
+     "options": [
+      "definizione obiettivi, raccolta dati, analisi, azioni correttive",
+      "solo l'acquisto del dominio",
+      "solo la stampa",
+      "niente decisioni"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 125"
+    },
+    {
+     "id": "a3-q08",
+     "type": "truefalse",
+     "q": "Copiare un'immagine protetta senza licenza è sempre lecito se è per la scuola.",
+     "answer": false,
+     "source": "InfoComm, pag. 140"
+    },
+    {
+     "id": "a3-q09",
+     "type": "truefalse",
+     "q": "Il bounce rate alto può indicare contenuti poco pertinenti.",
+     "answer": true,
+     "source": "InfoComm, pag. 125"
+    },
+    {
+     "id": "a3-q10",
+     "type": "truefalse",
+     "q": "Il marketing virale sfrutta la condivisione degli utenti.",
+     "answer": true,
+     "source": "InfoComm, pag. 137"
+    }
+   ]
+  },
+  {
+   "id": "a4",
+   "title": "A4 · Reti, networking e cloud",
+   "book_pages": [
+    150,
+    187
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "a4-q01",
+     "type": "multiple",
+     "q": "Un protocollo di rete è…",
+     "options": [
+      "un insieme di regole per comunicare tra computer",
+      "un antivirus",
+      "un cavo elettrico",
+      "un social network"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 150"
+    },
+    {
+     "id": "a4-q02",
+     "type": "multiple",
+     "q": "Il modello ISO-OSI…",
+     "options": [
+      "descrive 7 livelli di comunicazione (fisico→applicazione)",
+      "è un cavo in fibra",
+      "è un sito web",
+      "è una stampante"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 150"
+    },
+    {
+     "id": "a4-q03",
+     "type": "multiple",
+     "q": "Il protocollo TCP/IP…",
+     "options": [
+      "è la base di internet: indirizza e affida i pacchetti",
+      "serve solo per stampare",
+      "è un formato immagine",
+      "è un virus"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 150"
+    },
+    {
+     "id": "a4-q04",
+     "type": "multiple",
+     "q": "L'hosting di un sito significa…",
+     "options": [
+      "ospitare le pagine su un server raggiungibile via internet",
+      "tenere il sito solo sul PC spento",
+      "stampare il sito",
+      "inviare il sito per posta"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 172"
+    },
+    {
+     "id": "a4-q05",
+     "type": "multiple",
+     "q": "L'housing differisce dall'hosting perché…",
+     "options": [
+      "il server è di proprietà e ospitato in un data-center",
+      "non usa elettricità",
+      "è gratuito sempre",
+      "non usa internet"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 172"
+    },
+    {
+     "id": "a4-q06",
+     "type": "multiple",
+     "q": "Il cloud per l'azienda consente…",
+     "options": [
+      "risorse scalabili via internet senza server propri",
+      "di non fare mai backup",
+      "di lavorare solo offline",
+      "di eliminare le password"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 172"
+    },
+    {
+     "id": "a4-q07",
+     "type": "multiple",
+     "q": "La struttura di una rete aziendale prevede…",
+     "options": [
+      "client, server, switch/router, cablaggio o Wi-Fi pianificati",
+      "solo smartphone personali",
+      "nessuna sicurezza",
+      "cavi annodati a caso"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 172"
+    },
+    {
+     "id": "a4-q08",
+     "type": "truefalse",
+     "q": "TCP garantisce consegna ordinata e controllo errori, IP si occupa dell'indirizzamento.",
+     "answer": true,
+     "source": "InfoComm, pag. 150"
+    },
+    {
+     "id": "a4-q09",
+     "type": "truefalse",
+     "q": "Hosting e housing sono esattamente la stessa cosa.",
+     "answer": false,
+     "source": "InfoComm, pag. 172"
+    },
+    {
+     "id": "a4-q10",
+     "type": "truefalse",
+     "q": "Il cloud elimina ogni responsabilità su privacy e backup.",
+     "answer": false,
+     "source": "InfoComm, pag. 172"
+    }
+   ]
+  },
+  {
+   "id": "a5",
+   "title": "A5 · Sicurezza, crittografia e firma digitale",
+   "book_pages": [
+    188,
+    241
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "a5-q01",
+     "type": "multiple",
+     "q": "Le minacce naturali ai sistemi sono…",
+     "options": [
+      "tempeste, inondazioni, fulmini, incendi, terremoti",
+      "solo gli hacker",
+      "solo i virus",
+      "solo lo spam"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 190"
+    },
+    {
+     "id": "a5-q02",
+     "type": "multiple",
+     "q": "La crittografia serve a…",
+     "options": [
+      "rendere illeggibile un messaggio ai non autorizzati",
+      "velocizzare la stampante",
+      "comprimere video",
+      "creare siti web"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 210"
+    },
+    {
+     "id": "a5-q03",
+     "type": "multiple",
+     "q": "Nella crittografia asimmetrica…",
+     "options": [
+      "si usano chiave pubblica (condivisa) e privata (segreta)",
+      "c'è una sola password per tutti",
+      "non esistono chiavi",
+      "le chiavi sono inutili"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 210"
+    },
+    {
+     "id": "a5-q04",
+     "type": "multiple",
+     "q": "La firma digitale garantisce…",
+     "options": [
+      "autenticità, integrità e non ripudio del documento",
+      "l'anonimato totale",
+      "la cancellazione del documento",
+      "la stampa a colori"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 235"
+    },
+    {
+     "id": "a5-q05",
+     "type": "multiple",
+     "q": "Un certificato digitale…",
+     "options": [
+      "ha scadenza e va rinnovato; lega una chiave a un soggetto",
+      "dura per sempre senza rinnovo",
+      "è solo cartaceo",
+      "non serve a nulla"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 235"
+    },
+    {
+     "id": "a5-q06",
+     "type": "multiple",
+     "q": "La PEC è…",
+     "options": [
+      "posta elettronica certificata con valore legale di raccomandata",
+      "posta pubblicitaria",
+      "un social network",
+      "un antivirus"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 235"
+    },
+    {
+     "id": "a5-q07",
+     "type": "multiple",
+     "q": "L'autenticazione forte dell'utente richiede…",
+     "options": [
+      "credenziali robuste e possibilmente più fattori",
+      "la stessa password ovunque",
+      "password condivise",
+      "nessun controllo"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 218"
+    },
+    {
+     "id": "a5-q08",
+     "type": "truefalse",
+     "q": "Una chiave a 1024 bit può avere validità massima limitata nel tempo e va rinnovata.",
+     "answer": true,
+     "source": "InfoComm, pag. 235"
+    },
+    {
+     "id": "a5-q09",
+     "type": "truefalse",
+     "q": "Condividere la propria chiave privata con tutti è una buona pratica.",
+     "answer": false,
+     "source": "InfoComm, pag. 210"
+    },
+    {
+     "id": "a5-q10",
+     "type": "truefalse",
+     "q": "Backup e policy di sicurezza riducono i danni da incidenti.",
+     "answer": true,
+     "source": "InfoComm, pag. 190"
+    }
+   ]
+  },
+  {
+   "id": "a6",
+   "title": "A6 · PA digitale, fatture e SPID",
+   "book_pages": [
+    242,
+    283
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "a6-q01",
+     "type": "multiple",
+     "q": "L'AOO (Area Organizzativa Omogenea) nella PA è…",
+     "options": [
+      "l'ufficio che gestisce protocollo e documenti in modo omogeneo",
+      "un antivirus",
+      "un social",
+      "un formato video"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 245"
+    },
+    {
+     "id": "a6-q02",
+     "type": "multiple",
+     "q": "La fattura elettronica…",
+     "options": [
+      "è un file strutturato che transita via SDI con valore fiscale",
+      "è una semplice scansione senza valore",
+      "si invia solo per posta",
+      "non esiste in Italia"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 255"
+    },
+    {
+     "id": "a6-q03",
+     "type": "multiple",
+     "q": "Il 730 precompilato…",
+     "options": [
+      "è predisposto dall'Agenzia con dati già noti, da verificare/integrare",
+      "si compila solo a penna",
+      "non riguarda i lavoratori",
+      "è uguale per tutti senza modifiche"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 255"
+    },
+    {
+     "id": "a6-q04",
+     "type": "multiple",
+     "q": "Il mercato elettronico della PA (MEPA) serve per…",
+     "options": [
+      "acquisti pubblici trasparenti e concorrenziali online",
+      "vendere auto usate tra privati",
+      "giocare online",
+      "guardare film"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 260"
+    },
+    {
+     "id": "a6-q05",
+     "type": "multiple",
+     "q": "PagoPA è…",
+     "options": [
+      "il sistema di pagamenti elettronici verso la PA",
+      "una banca privata estera",
+      "un social network",
+      "un virus"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 280"
+    },
+    {
+     "id": "a6-q06",
+     "type": "multiple",
+     "q": "Lo SPID è…",
+     "options": [
+      "l'identità digitale per accedere ai servizi online di PA e privati",
+      "una carta fedeltà del supermercato",
+      "un antivirus",
+      "un cavo di rete"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 270"
+    },
+    {
+     "id": "a6-q07",
+     "type": "multiple",
+     "q": "L'e-procurement indica…",
+     "options": [
+      "gli acquisti di beni/servizi tramite piattaforme digitali",
+      "la stampa di cataloghi",
+      "le aste in piazza",
+      "il baratto"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 260"
+    },
+    {
+     "id": "a6-q08",
+     "type": "truefalse",
+     "q": "La fattura elettronica ha seguito un percorso di avvicinamento digitale in Europa.",
+     "answer": true,
+     "source": "InfoComm, pag. 255"
+    },
+    {
+     "id": "a6-q09",
+     "type": "truefalse",
+     "q": "Con PagoPA i pagamenti alla PA diventano semplici, sicuri e trasparenti.",
+     "answer": true,
+     "source": "InfoComm, pag. 280"
+    },
+    {
+     "id": "a6-q10",
+     "type": "truefalse",
+     "q": "SPID e CIE permettono di accedere ai servizi online senza nuove credenziali per ogni sito.",
+     "answer": true,
+     "source": "InfoComm, pag. 270"
+    }
+   ]
+  },
+  {
+   "id": "b1",
+   "title": "B1 · Siti web, HTML e CSS",
+   "book_pages": [
+    284,
+    347
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "b1-q01",
+     "type": "multiple",
+     "q": "HTML è…",
+     "options": [
+      "il linguaggio di markup per strutturare le pagine web",
+      "un foglio di calcolo",
+      "un antivirus",
+      "un database"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 294"
+    },
+    {
+     "id": "b1-q02",
+     "type": "multiple",
+     "q": "I tag di paragrafo e allineamento in HTML…",
+     "options": [
+      "si applicano a p/div con valori left, right, center",
+      "non esistono",
+      "sono solo per la stampa",
+      "distruggono la pagina"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 300"
+    },
+    {
+     "id": "b1-q03",
+     "type": "multiple",
+     "q": "I CSS servono a…",
+     "options": [
+      "separare stile e presentazione dal contenuto HTML",
+      "scrivere virus",
+      "sostituire il server",
+      "eliminare internet"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 314"
+    },
+    {
+     "id": "b1-q04",
+     "type": "multiple",
+     "q": "Una classe CSS .evidenziato…",
+     "options": [
+      "si applica con class=\"evidenziato\" a uno o più elementi",
+      "funziona solo stampando",
+      "non esiste",
+      "cancella il testo"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 320"
+    },
+    {
+     "id": "b1-q05",
+     "type": "multiple",
+     "q": "HTML5 introduce…",
+     "options": [
+      "nuovi tag semantici e form avanzati (email, date, validazione)",
+      "solo pagine cartacee",
+      "niente form",
+      "solo bianco e nero"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 326"
+    },
+    {
+     "id": "b1-q06",
+     "type": "multiple",
+     "q": "Usabilità e accessibilità di un sito significano…",
+     "options": [
+      "facile da usare e fruibile da tutti, anche con disabilità",
+      "solo bello da vedere",
+      "solo veloce",
+      "solo pieno di animazioni"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 292"
+    },
+    {
+     "id": "b1-q07",
+     "type": "multiple",
+     "q": "Un CMS (es. per siti aziendali) permette di…",
+     "options": [
+      "creare e gestire contenuti senza scrivere tutto il codice",
+      "programmare chip",
+      "stampare libri",
+      "creare virus"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 345"
+    },
+    {
+     "id": "b1-q08",
+     "type": "truefalse",
+     "q": "In HTML la struttura (tag) e lo stile (CSS) è bene tenerli separati.",
+     "answer": true,
+     "source": "InfoComm, pag. 314"
+    },
+    {
+     "id": "b1-q09",
+     "type": "truefalse",
+     "q": "left è il valore di allineamento predefinito del paragrafo.",
+     "answer": true,
+     "source": "InfoComm, pag. 300"
+    },
+    {
+     "id": "b1-q10",
+     "type": "truefalse",
+     "q": "Un sito usabile deve confondere l'utente con menu nascosti.",
+     "answer": false,
+     "source": "InfoComm, pag. 292"
+    }
+   ]
+  },
+  {
+   "id": "b2",
+   "title": "B2 · Documenti aziendali con Word",
+   "book_pages": [
+    348,
+    399
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "b2-q01",
+     "type": "multiple",
+     "q": "La lettera commerciale deve…",
+     "options": [
+      "avere intestazione, oggetto, corpo chiaro e firma",
+      "essere senza data né firma",
+      "usare solo emoticon",
+      "essere illeggibile"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 348"
+    },
+    {
+     "id": "b2-q02",
+     "type": "multiple",
+     "q": "Il mail merge (stampa unione) serve a…",
+     "options": [
+      "produrre lettere personalizzate da un modello + elenco dati",
+      "inviare virus",
+      "unire due computer",
+      "formattare dischi"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 364"
+    },
+    {
+     "id": "b2-q03",
+     "type": "multiple",
+     "q": "Nel mail merge il documento origine…",
+     "options": [
+      "contiene campi collegati ai record (nomi, indirizzi)",
+      "è sempre vuoto",
+      "non si salva mai",
+      "è un video"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 370"
+    },
+    {
+     "id": "b2-q04",
+     "type": "multiple",
+     "q": "Per verificare le copie del mail merge…",
+     "options": [
+      "si naviga tra i record dalla barra dei record",
+      "si tira a sorte",
+      "si stampa tutto senza controllare",
+      "si cancella l'elenco"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 370"
+    },
+    {
+     "id": "b2-q05",
+     "type": "multiple",
+     "q": "Google Moduli è utile in azienda per…",
+     "options": [
+      "raccogliere risposte con questionari online automatizzati",
+      "montare video",
+      "programmare app",
+      "disegnare loghi"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 395"
+    },
+    {
+     "id": "b2-q06",
+     "type": "multiple",
+     "q": "L'aspetto di un Modulo Google si cambia…",
+     "options": [
+      "definendo layout e temi del questionario",
+      "solo stampando",
+      "mai",
+      "con il martello"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 395"
+    },
+    {
+     "id": "b2-q07",
+     "type": "multiple",
+     "q": "I documenti automatizzati riducono…",
+     "options": [
+      "errori e tempi rispetto alla compilazione manuale",
+      "la qualità sempre",
+      "la sicurezza sempre",
+      "la leggibilità"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 380"
+    },
+    {
+     "id": "b2-q08",
+     "type": "truefalse",
+     "q": "La stampa unione collega un modello ai dati di un elenco.",
+     "answer": true,
+     "source": "InfoComm, pag. 364"
+    },
+    {
+     "id": "b2-q09",
+     "type": "truefalse",
+     "q": "Una lettera commerciale non ha bisogno di oggetto e firma.",
+     "answer": false,
+     "source": "InfoComm, pag. 348"
+    },
+    {
+     "id": "b2-q10",
+     "type": "truefalse",
+     "q": "Con Google Moduli le risposte si raccolgono in modo automatico.",
+     "answer": true,
+     "source": "InfoComm, pag. 395"
+    }
+   ]
+  },
+  {
+   "id": "b3",
+   "title": "B3 · Excel per l'azienda",
+   "book_pages": [
+    400,
+    449
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "b3-q01",
+     "type": "multiple",
+     "q": "Excel in azienda serve soprattutto a…",
+     "options": [
+      "gestire e analizzare dati contabili e commerciali",
+      "montare film",
+      "navigare anonimi",
+      "disegnare fumetti"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 420"
+    },
+    {
+     "id": "b3-q02",
+     "type": "multiple",
+     "q": "Filtri e subtotali in Excel permettono di…",
+     "options": [
+      "selezionare e riepilogare sottoinsiemi di dati",
+      "cancellare tutto",
+      "formattare il PC",
+      "creare virus"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 420"
+    },
+    {
+     "id": "b3-q03",
+     "type": "multiple",
+     "q": "La formattazione condizionale…",
+     "options": [
+      "evidenzia celle in base a regole (es. valori fuori soglia)",
+      "cancella i dati",
+      "spegne il PC",
+      "stampa da sola"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 420"
+    },
+    {
+     "id": "b3-q04",
+     "type": "multiple",
+     "q": "Funzioni come SOMMA.SE e CONTA.SE servono a…",
+     "options": [
+      "sommare/contare solo celle che rispettano criteri",
+      "contare i fogli stampati",
+      "misurare lo schermo",
+      "niente"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 420"
+    },
+    {
+     "id": "b3-q05",
+     "type": "multiple",
+     "q": "I modelli Excel protetti…",
+     "options": [
+      "guidano l'inserimento ed evitano modifiche accidentali",
+      "sono inutili",
+      "non si salvano",
+      "sono virus"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 445"
+    },
+    {
+     "id": "b3-q06",
+     "type": "multiple",
+     "q": "Un intervallo tipo B2:B2202 indica…",
+     "options": [
+      "le celle dalla riga 2 alla 2202 della colonna B",
+      "una sola cella",
+      "un grafico",
+      "una password"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 445"
+    },
+    {
+     "id": "b3-q07",
+     "type": "multiple",
+     "q": "Applicazioni di marketing in Excel includono…",
+     "options": [
+      "analisi vendite, campagne ed expo con tabelle e grafici",
+      "solo disegni a mano",
+      "niente dati",
+      "solo testo libero"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 451"
+    },
+    {
+     "id": "b3-q08",
+     "type": "truefalse",
+     "q": "I filtri mostrano solo le righe che soddisfano i criteri scelti.",
+     "answer": true,
+     "source": "InfoComm, pag. 420"
+    },
+    {
+     "id": "b3-q09",
+     "type": "truefalse",
+     "q": "La protezione dei fogli impedisce modifiche alle celle bloccate.",
+     "answer": true,
+     "source": "InfoComm, pag. 445"
+    },
+    {
+     "id": "b3-q10",
+     "type": "truefalse",
+     "q": "CONTA.SE conta tutte le celle senza alcun criterio.",
+     "answer": false,
+     "source": "InfoComm, pag. 420"
+    }
+   ]
+  },
+  {
+   "id": "b4",
+   "title": "B4 · Audio, video e immagini",
+   "book_pages": [
+    450,
+    520
+   ],
+   "minutes": 12,
+   "questions": [
+    {
+     "id": "b4-q01",
+     "type": "multiple",
+     "q": "Un trasduttore audio come il microfono…",
+     "options": [
+      "trasforma onde di pressione in segnali elettrici",
+      "cuoce la pasta",
+      "stampa foto",
+      "proietta film"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 470"
+    },
+    {
+     "id": "b4-q02",
+     "type": "multiple",
+     "q": "La rappresentazione digitale di suoni/immagini richiede…",
+     "options": [
+      "campionamento e quantizzazione in bit",
+      "solo carta e penna",
+      "niente formati",
+      "solo TV analogica"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 470"
+    },
+    {
+     "id": "b4-q03",
+     "type": "multiple",
+     "q": "Per elaborare immagini (es. sostituire uno sfondo) si usano…",
+     "options": [
+      "selezioni e livelli in un editor grafico",
+      "solo il blocco note",
+      "la calcolatrice",
+      "il martello"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 490"
+    },
+    {
+     "id": "b4-q04",
+     "type": "multiple",
+     "q": "Shotcut è…",
+     "options": [
+      "un editor video gratuito per tagliare e montare filmati",
+      "un virus",
+      "una stampante",
+      "un social"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 510"
+    },
+    {
+     "id": "b4-q05",
+     "type": "multiple",
+     "q": "Aggiungere didascalie e riconoscimenti a un video…",
+     "options": [
+      "rispetta autori e migliora la comprensione",
+      "è inutile",
+      "è vietato",
+      "rovina tutto"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 502"
+    },
+    {
+     "id": "b4-q06",
+     "type": "multiple",
+     "q": "Formati e compressione servono a…",
+     "options": [
+      "bilanciare qualità e peso di audio/video/immagini",
+      "eliminare i file",
+      "non servono",
+      "aumentare sempre il peso"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 485"
+    },
+    {
+     "id": "b4-q07",
+     "type": "multiple",
+     "q": "Un uso consapevole dei media in azienda richiede…",
+     "options": [
+      "rispetto di licenze, privacy e diritto d'autore",
+      "copie abusive",
+      "volti pubblicati senza consenso",
+      "musica rubata"
+     ],
+     "answer": 0,
+     "source": "InfoComm, pag. 490"
+    },
+    {
+     "id": "b4-q08",
+     "type": "truefalse",
+     "q": "Il microfono è un esempio di trasduttore audio.",
+     "answer": true,
+     "source": "InfoComm, pag. 470"
+    },
+    {
+     "id": "b4-q09",
+     "type": "truefalse",
+     "q": "Comprimere un video riduce sempre e solo la qualità senza vantaggi.",
+     "answer": false,
+     "source": "InfoComm, pag. 485"
+    },
+    {
+     "id": "b4-q10",
+     "type": "truefalse",
+     "q": "Nei video aziendali vanno indicati autori e fonti del materiale.",
+     "answer": true,
+     "source": "InfoComm, pag. 502"
+    }
+   ]
+  }
+ ]
+}
