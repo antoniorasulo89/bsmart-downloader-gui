@@ -1,0 +1,5 @@
+requests
+pypdf
+msgpack
+pycryptodome
+pyinstaller
