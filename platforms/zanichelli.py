@@ -114,8 +114,14 @@ def list_books(state):
         for l in lic:
             vol = l.get("volume") or {}
             if not vol.get("ereader_url") and len(dbg) < 16:
-                dbg.append(f"senza URL: licenza={sorted(l.keys())[:10]} volume={sorted(vol.keys())[:14]} "
-                           f"titolo={(vol.get('opera') or {}).get('title', '?')[:60]}")
+                info = vol.get("ereader_info")
+                dbg.append(f"senza URL: titolo={(vol.get('opera') or {}).get('title', '?')[:50]} "
+                           f"ereader_url={vol.get('ereader_url')!r:.60} "
+                           f"edigita_url={vol.get('edigita_url')!r:.80} "
+                           f"laze_url={vol.get('laze_url')!r:.80} "
+                           f"preview={vol.get('preview')!r:.80} "
+                           f"ereader_info={sorted(info.keys())[:10] if isinstance(info, dict) else type(info).__name__} "
+                           f"license_type={l.get('license_type')!r}")
         _add_licenses(books, lic)
         pages = (data.get("pagination") or {}).get("pages", 0)
         if not pages or pages == page:
